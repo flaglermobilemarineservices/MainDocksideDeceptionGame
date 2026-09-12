@@ -1,0 +1,394 @@
+[
+  {
+    "index": 1,
+    "mime": "video/mp4",
+    "file": "cutscene1.mp4",
+    "size": 4381472,
+    "sha256": "53d44e7a8fe3f2a0bea52408c423dbd84f8347f26065c27bce17c4f865827f09",
+    "duplicate": false
+  },
+  {
+    "index": 2,
+    "mime": "video/mp4",
+    "file": "cutscene2_heat.mp4",
+    "size": 5252806,
+    "sha256": "9eda7d8394dab9cce422da495d9fa57341b3288414a00dd0839d587aaca36bcf",
+    "duplicate": false
+  },
+  {
+    "index": 3,
+    "mime": "image/webp",
+    "file": "bilge_pump_job.webp",
+    "size": 15884,
+    "sha256": "ff9daeac3fd879999059964b3cff90fca8f24cf42a544f81fd85ff8ea634110b",
+    "duplicate": false
+  },
+  {
+    "index": 4,
+    "mime": "image/png",
+    "file": "boat_baby_bryan.png",
+    "size": 2121721,
+    "sha256": "406f7ad25a0205032c7400bb04f5a8be99c8a5fdb151488d33031c643cdbfdc1",
+    "duplicate": false
+  },
+  {
+    "index": 5,
+    "mime": "image/png",
+    "file": "drink_cart.png",
+    "size": 2216143,
+    "sha256": "5e17d1d5d27a67d3d246a7ecd815bd81100b11de22a83da883513c8db014494b",
+    "duplicate": false
+  },
+  {
+    "index": 6,
+    "mime": "image/webp",
+    "file": "water_shop.webp",
+    "size": 20892,
+    "sha256": "18483736d11f24e5e7fc4574dd7a46380a03e38eec353b131dbd089499bdc024",
+    "duplicate": false
+  },
+  {
+    "index": 7,
+    "mime": "image/webp",
+    "file": "redbull_shop.webp",
+    "size": 27548,
+    "sha256": "991d9bf40e40755b55ce6d329bfbf63cc5c8262421ef395b80077adb67b49581",
+    "duplicate": false
+  },
+  {
+    "index": 8,
+    "mime": "image/webp",
+    "file": "water_shop.webp",
+    "size": 20892,
+    "sha256": "18483736d11f24e5e7fc4574dd7a46380a03e38eec353b131dbd089499bdc024",
+    "duplicate": true
+  },
+  {
+    "index": 9,
+    "mime": "image/webp",
+    "file": "redbull_shop.webp",
+    "size": 27548,
+    "sha256": "991d9bf40e40755b55ce6d329bfbf63cc5c8262421ef395b80077adb67b49581",
+    "duplicate": true
+  },
+  {
+    "index": 10,
+    "mime": "image/png",
+    "file": "marina_scene.png",
+    "size": 1394526,
+    "sha256": "1e2abdd1f7283c74eede32ec35ff43d472457b1fa7ce41a27cd61e078e19bc13",
+    "duplicate": false
+  },
+  {
+    "index": 11,
+    "mime": "image/png",
+    "file": "title_screen.png",
+    "size": 2828294,
+    "sha256": "c1ec4af063bacd60bfd49fc8e6571b89ad922d531589a2d02be5debee633054e",
+    "duplicate": false
+  },
+  {
+    "index": 12,
+    "mime": "image/png",
+    "file": "dialogue_sheet.png",
+    "size": 2754534,
+    "sha256": "53652076adcda251a5df6215b4e61cf1e3a93641f3f8afe51a0fb40b1eafa61c",
+    "duplicate": false
+  },
+  {
+    "index": 13,
+    "mime": "image/png",
+    "file": "rick_laugh.png",
+    "size": 158470,
+    "sha256": "84c12c57976400d64b65be84a705a2b7227e0fa17e1a57612b3b3436c654f31f",
+    "duplicate": false
+  },
+  {
+    "index": 14,
+    "mime": "image/png",
+    "file": "kyle_laugh.png",
+    "size": 143059,
+    "sha256": "7ebd77961c8fbb0776973b4ff6f34022ae2053235990a402d3ecf294b9654160",
+    "duplicate": false
+  },
+  {
+    "index": 15,
+    "mime": "image/png",
+    "file": "rick_poster.png",
+    "size": 2665712,
+    "sha256": "e336e66ada476826e6822e9f172dbfedb7d1b6923f9b9f14d25a123b62e14391",
+    "duplicate": false
+  },
+  {
+    "index": 16,
+    "mime": "image/png",
+    "file": "kyle_world.png",
+    "size": 99863,
+    "sha256": "02cb8ac98b93697e824fbe329f9b9de88d4abfa751cd0dcd6be238b7db393dd7",
+    "duplicate": false
+  },
+  {
+    "index": 17,
+    "mime": "image/png",
+    "file": "rick_idle.png",
+    "size": 26815,
+    "sha256": "d2157f07bf399baec25eafe85e72d2139a22fbf5f78e90d178cb7bfebdbc3c45",
+    "duplicate": false
+  },
+  {
+    "index": 18,
+    "mime": "image/png",
+    "file": "rick_walk1.png",
+    "size": 27901,
+    "sha256": "8867e3b2014a723826a2f26092c77df6765765b3543b60e346ccdfd3e91d9282",
+    "duplicate": false
+  },
+  {
+    "index": 19,
+    "mime": "image/png",
+    "file": "rick_walk2.png",
+    "size": 28454,
+    "sha256": "a0242423d8e971c954b3c8233cdbc2a4bedb806d2bfbd0e13ebfba2b49748e24",
+    "duplicate": false
+  },
+  {
+    "index": 20,
+    "mime": "image/png",
+    "file": "rick_walk3.png",
+    "size": 26985,
+    "sha256": "4b7b5de6eff0d6338e47608640d3d8c36b434eab41e47ae4006ff482e617fe0f",
+    "duplicate": false
+  },
+  {
+    "index": 21,
+    "mime": "image/png",
+    "file": "rick_walk4.png",
+    "size": 27420,
+    "sha256": "e430318c37668b61f0ca5efd6eb1e06bda139e796f5c2042e4156a1ebb7d9402",
+    "duplicate": false
+  },
+  {
+    "index": 22,
+    "mime": "image/png",
+    "file": "rick_run1.png",
+    "size": 28864,
+    "sha256": "59e08a5283cff14d2a71aab91c13b965d3f7aa76c0bdb0d07d50fdb9795e3a6a",
+    "duplicate": false
+  },
+  {
+    "index": 23,
+    "mime": "image/png",
+    "file": "rick_run2.png",
+    "size": 28825,
+    "sha256": "96244cd206f01b58672eeb2c464f5570c4f90d297dd8361dfc951b5a94e284d4",
+    "duplicate": false
+  },
+  {
+    "index": 24,
+    "mime": "image/png",
+    "file": "rick_run3.png",
+    "size": 24834,
+    "sha256": "d2c51158d9889613407a92d106983f00d2fcefeb19fc8b48e113048580bda758",
+    "duplicate": false
+  },
+  {
+    "index": 25,
+    "mime": "image/png",
+    "file": "npc1.png",
+    "size": 29564,
+    "sha256": "7c16372784fa3db4090cf3c5cfbb207b1b0477339adbde6c4b04a1fa59982d6d",
+    "duplicate": false
+  },
+  {
+    "index": 26,
+    "mime": "image/png",
+    "file": "npc2.png",
+    "size": 28014,
+    "sha256": "37763c783028472d4391c1f130b20030a5c6295803660200c58fdf5396817abf",
+    "duplicate": false
+  },
+  {
+    "index": 27,
+    "mime": "image/png",
+    "file": "npc3.png",
+    "size": 26872,
+    "sha256": "3cc061bcbb452dd0968d097517f823064b93a615c4bacd21e86c313987967b66",
+    "duplicate": false
+  },
+  {
+    "index": 28,
+    "mime": "image/png",
+    "file": "npc4.png",
+    "size": 28857,
+    "sha256": "4cd2f5ca1c88cbeb7fbfaa81214f4e4dd5935d8fc9325da37c9785e93101a756",
+    "duplicate": false
+  },
+  {
+    "index": 29,
+    "mime": "image/webp",
+    "file": "bilge_pump_job.webp",
+    "size": 15884,
+    "sha256": "ff9daeac3fd879999059964b3cff90fca8f24cf42a544f81fd85ff8ea634110b",
+    "duplicate": true
+  },
+  {
+    "index": 30,
+    "mime": "image/webp",
+    "file": "outboard.webp",
+    "size": 18468,
+    "sha256": "8aba5064e4cd5d8ce688540d63f6633db12c8d4af4d9b4a97d89a7f6ec06fd86",
+    "duplicate": false
+  },
+  {
+    "index": 31,
+    "mime": "image/webp",
+    "file": "powerhead.webp",
+    "size": 39584,
+    "sha256": "2ed20e37eb153aa8aa8891172b216664559b25fb69bb425825b26ba91e577b27",
+    "duplicate": false
+  },
+  {
+    "index": 32,
+    "mime": "image/webp",
+    "file": "extractor.webp",
+    "size": 17808,
+    "sha256": "c6d61eeb926042238ba9dec4307ef4ef82937c39ff5f6ab20976caf0baaa3873",
+    "duplicate": false
+  },
+  {
+    "index": 33,
+    "mime": "image/webp",
+    "file": "filter.webp",
+    "size": 31172,
+    "sha256": "1457b39bd94fc6cea519e95d5b413746d55bc9fdc26b11ad3e76d1766c7a5bd2",
+    "duplicate": false
+  },
+  {
+    "index": 34,
+    "mime": "image/webp",
+    "file": "lower.webp",
+    "size": 17156,
+    "sha256": "1e0e29ac470a3f93ce349a766efc06463cd6718aac4d720b554a58b4c0546de3",
+    "duplicate": false
+  },
+  {
+    "index": 35,
+    "mime": "image/webp",
+    "file": "spark_tool.webp",
+    "size": 15912,
+    "sha256": "b1c62b8d672d408bd50a52c8f6ddb4083d0377dd914e906a608f70909d079170",
+    "duplicate": false
+  },
+  {
+    "index": 36,
+    "mime": "image/webp",
+    "file": "spark_plug.webp",
+    "size": 15108,
+    "sha256": "11a07db2579c5556379c2ffe316959658ac613b336dbb1b0433ace7cb22b616b",
+    "duplicate": false
+  },
+  {
+    "index": 37,
+    "mime": "image/webp",
+    "file": "fuel.webp",
+    "size": 27776,
+    "sha256": "9118bb06376b7cd0701d2cd9f4fff2c3ce01388429c5e140a29fb1dfa48bf7d1",
+    "duplicate": false
+  },
+  {
+    "index": 38,
+    "mime": "image/webp",
+    "file": "spray.webp",
+    "size": 23052,
+    "sha256": "82ee9e6c1e0b204bddfcae9a188c24a975a2dd194ac138fc680289353d072ef8",
+    "duplicate": false
+  },
+  {
+    "index": 39,
+    "mime": "image/webp",
+    "file": "screwdriver.webp",
+    "size": 5166,
+    "sha256": "c963ed67819e2145cb6aa90ae4a39439c639161ddaa830491b55d0d2f2c6d02d",
+    "duplicate": false
+  },
+  {
+    "index": 40,
+    "mime": "image/webp",
+    "file": "wrench.webp",
+    "size": 12316,
+    "sha256": "2a25e46d683cecd568599f95ffcbdecd39a1ccae1621610c6ba1f5f36e7382be",
+    "duplicate": false
+  },
+  {
+    "index": 41,
+    "mime": "image/webp",
+    "file": "gear_pump.png",
+    "size": 8850,
+    "sha256": "9081950fd05e67065522416e2ff924c36e4dff0dea0f284161ecc9cddf85f733",
+    "duplicate": false
+  },
+  {
+    "index": 42,
+    "mime": "image/png",
+    "file": "drink_cart.png",
+    "size": 2216143,
+    "sha256": "5e17d1d5d27a67d3d246a7ecd815bd81100b11de22a83da883513c8db014494b",
+    "duplicate": true
+  },
+  {
+    "index": 43,
+    "mime": "image/webp",
+    "file": "water_shop.webp",
+    "size": 20892,
+    "sha256": "18483736d11f24e5e7fc4574dd7a46380a03e38eec353b131dbd089499bdc024",
+    "duplicate": true
+  },
+  {
+    "index": 44,
+    "mime": "image/webp",
+    "file": "redbull_shop.webp",
+    "size": 27548,
+    "sha256": "991d9bf40e40755b55ce6d329bfbf63cc5c8262421ef395b80077adb67b49581",
+    "duplicate": true
+  },
+  {
+    "index": 45,
+    "mime": "image/png",
+    "file": "sinking_boat_scene.png",
+    "size": 2647830,
+    "sha256": "1a0468d586a35712fef03cb69a2725688bebf286935efae3fc02d74cf4b45f57",
+    "duplicate": false
+  },
+  {
+    "index": 46,
+    "mime": "audio/wav",
+    "file": "music_track.wav",
+    "size": 1144260,
+    "sha256": "dd766e0e5393f99f9df7cef98eb3696a3dcfb46a561c539ebfb5a3599c7915b2",
+    "duplicate": false
+  },
+  {
+    "index": 47,
+    "mime": "audio/mpeg",
+    "file": "loading_song.mp3",
+    "size": 4737896,
+    "sha256": "2ed9a10f60fe57b0887435b89acf1f02ca44e2c46de24afafc879387867cf0ed",
+    "duplicate": false
+  },
+  {
+    "index": 48,
+    "mime": "audio/mpeg",
+    "file": "custom_dock_chorus.mp3",
+    "size": 529016,
+    "sha256": "5ecf6a480de34c7e6561bca160aefdc84a5a799a6be9433dab5d7dd6accb8154",
+    "duplicate": false
+  },
+  {
+    "index": 49,
+    "mime": "audio/mpeg",
+    "file": "bryan_reveal_track.mp3",
+    "size": 361196,
+    "sha256": "23c5ac896b9aaa9400d0203045c321c4269e7549d6d161b91bf809c0fa807391",
+    "duplicate": false
+  }
+]

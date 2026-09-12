@@ -1,0 +1,1680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Dockyard Deception v12.5 — Discovery Job Update</title>
+<style>
+:root{--cyan:#55e9ff;--gold:#ffc94d;--ink:#06101b;--green:#56e38d;--red:#ff5d70}
+*{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+html,body{
+ margin:0;width:100%;height:100%;overflow:hidden;background:#02070c;color:#fff;
+ font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+ -webkit-text-size-adjust:100%;text-size-adjust:100%;
+}
+#stage{
+ position:fixed;inset:0;display:grid;place-items:center;
+ background:radial-gradient(circle at 50% 20%,#17344b,#02070c 72%)
+}
+@media (orientation:portrait){
+ #stage{place-items:start center;padding-top:0}
+ canvas{width:100vw;height:auto;max-width:none;max-height:none}
+}
+canvas{display:block;width:min(100vw,177.777vh);height:min(56.25vw,100vh);max-width:100vw;max-height:100vh;background:#0b6075;box-shadow:0 30px 100px #000;touch-action:none}
+#start{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#02070c;overflow:hidden}
+#startBg{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(1.08) brightness(.7)}
+#startShade{position:absolute;inset:0;background:linear-gradient(90deg,#02070cf2,#02070cbd 45%,#02070c48 77%,#02070ca9)}
+.startCard{position:relative;width:min(680px,90vw);margin-right:min(42vw,660px);padding:30px 34px;background:#06111bea;border-left:6px solid var(--cyan);box-shadow:0 25px 80px #000b;backdrop-filter:blur(8px)}
+.kicker{color:var(--gold);font-weight:1000;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+.logo{font-weight:1000;font-style:italic;font-size:clamp(42px,5.2vw,78px);line-height:.87;letter-spacing:-4px;text-shadow:5px 5px 0 #000;margin:7px 0}.logo span{color:#28bfff}
+.levelName{font-weight:1000;font-size:clamp(23px,2.2vw,36px);color:#fff0b2;margin:14px 0}
+.startCard p{font-size:17px;line-height:1.45;color:#dce8ee}
+.primary,.wideBtn{border:0;background:linear-gradient(90deg,#33dfff,#61efae);color:#05202a;font-size:19px;font-weight:1000;padding:16px 20px;cursor:pointer}
+.primary{width:100%;border-radius:8px}.wideBtn{width:100%;margin-top:10px}
+#continueBtn{display:none;width:100%;margin:10px 0 0;border:1px solid #55e9ff88;background:#102d3c;color:#7defff;font-size:18px;font-weight:1000;padding:14px 18px;border-radius:8px;cursor:pointer}
+#saveSummary{display:none;margin:10px 0 0;padding:9px 11px;background:#071b25;border:1px solid #55e9ff44;color:#cfeaf2;font-size:12px;line-height:1.35;border-radius:8px}
+.hint{margin-top:12px;color:#93a8b4;font-size:12px}
+
+.overlay{position:fixed;inset:0;z-index:40;display:none;place-items:center;background:#02070cd5;backdrop-filter:blur(7px);padding:18px}
+.card{width:min(680px,94vw);max-height:92vh;overflow:auto;background:#071520;border:1px solid #55e9ff55;border-top:4px solid var(--cyan);box-shadow:0 28px 90px #000;padding:24px}
+.card h2{font-size:30px;margin:0 0 10px}.card p{font-size:17px;line-height:1.45;color:#e5edf1}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.two button{border:0;padding:14px;font-weight:1000;font-size:17px;cursor:pointer}.yes{background:var(--green);color:#052313}.no{background:var(--red);color:#2c050b}
+.rule{background:#0d2430;border-left:3px solid #47dfff;padding:10px 12px;margin:8px 0}.rule span{color:#aebfc8}
+.jumpIcon{text-align:center;font-size:60px}
+
+#controls{position:fixed;z-index:24;left:0;right:0;bottom:max(10px,env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:end;padding:0 14px;pointer-events:none}
+.dpad{display:grid;grid-template-columns:60px 60px 60px;grid-template-rows:55px 55px 55px;gap:4px;pointer-events:auto}
+.dpad .u{grid-column:2}.dpad .l{grid-column:1;grid-row:2}.dpad .r{grid-column:3;grid-row:2}.dpad .d{grid-column:2;grid-row:3}
+.ctrl{width:60px;height:55px;border:1px solid #fff3;background:#06111be5;color:#fff;border-radius:16px;font-size:22px;font-weight:1000;box-shadow:0 7px 22px #0008;touch-action:none}
+.actions{display:flex;gap:7px;pointer-events:auto;align-items:flex-end}
+.actions .ctrl{
+ width:88px;height:68px;font-size:12px;line-height:1.05;padding:4px;
+ white-space:nowrap;overflow:hidden;text-overflow:clip;
+}
+.actions .talk{
+ color:#08141e;background:#74eaff;font-size:15px;width:94px;
+ border-color:#b9f6ff;font-weight:1000;
+}
+.actions .use{color:#ffd36b;width:110px;font-size:11px;white-space:normal}
+button{font-family:inherit;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+#music,#skip{
+ position:fixed;z-index:29;right:12px;
+ border:1px solid #55e9ff55;background:#06111bd8;
+ padding:6px 9px;border-radius:8px;font-weight:900;
+ font-size:10px;backdrop-filter:blur(5px)
+}
+#music{top:150px;color:#7defff}
+#skip{top:183px;color:#fff;display:none}
+
+#jobMini .card{width:min(820px,96vw)}
+.miniHud{display:flex;justify-content:space-between;margin:10px 0}.meter{height:18px;background:#132a36;border:1px solid #fff2}.fill{height:100%;background:#2ed7ff;width:0}
+.boatTank{height:190px;position:relative;overflow:hidden;background:linear-gradient(#112b38,#06131e);border:2px solid #274657;margin:12px 0}.boatBody{position:absolute;left:13%;right:13%;top:25px;height:88px;background:#ece9df;clip-path:polygon(0 25%,100% 8%,92% 85%,13% 100%)}.water{position:absolute;left:0;right:0;bottom:0;height:38%;background:linear-gradient(#2bc8dfaa,#08779be8);transition:height .13s}.leak{position:absolute;right:23%;top:80px;font-size:31px;animation:drip .5s infinite alternate}.clue{position:absolute;left:15%;top:128px;background:#06101bdc;border:1px solid #56e8ff66;padding:8px 11px;font-size:13px}@keyframes drip{to{transform:translateY(8px) scale(1.08)}}
+.answers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.answers button,.miniBtns button{border:0;padding:13px;font-weight:950;font-size:15px}.answers button{background:#17303d;color:#fff}.answers .correct{background:#4fe28a;color:#062112}.answers .wrong{background:#ff6273;color:#2b0509}.miniBtns{display:flex;gap:8px;margin-top:10px}.miniBtns button{flex:1;background:#39d0ff;color:#05202b}.miniBtns button:disabled{opacity:.35}
+.money{font-size:44px;color:#5ae78d;font-weight:1000}.reviewBox{background:#0d2330;border:1px solid #fff2;padding:12px;margin:13px 0}.star{color:#ffd13c}
+
+@media(max-width:760px){
+ .startCard{margin:0;width:92vw;padding:22px}
+ .card{padding:18px}
+ .card h2{font-size:25px}
+
+ #controls{
+   left:0;right:0;
+   padding:0 8px 8px;
+   gap:8px;
+ }
+ .dpad{
+   grid-template-columns:52px 52px 52px;
+   grid-template-rows:50px 50px 50px;
+   gap:3px;
+   transform:none;
+ }
+ .ctrl{width:52px;height:50px;border-radius:14px;font-size:19px}
+
+ .actions{
+   gap:5px;
+   transform:none;
+   flex-wrap:nowrap;
+ }
+ .actions .ctrl{
+   width:72px;height:60px;
+   padding:3px;
+   font-size:10px;
+   line-height:1.05;
+   white-space:normal;
+ }
+ .actions .talk{
+   width:78px;
+   font-size:13px;
+ }
+ .actions .use{
+   width:86px;
+   font-size:9px;
+ }
+
+ #music{right:8px;top:8px;font-size:11px;padding:7px 9px}
+ #skip{right:8px;top:46px;font-size:11px;padding:7px 9px}
+}
+
+@media (orientation:landscape) and (max-height:700px){
+  #controls{padding:0 12px 5px}
+  .dpad{grid-template-columns:44px 44px 44px;grid-template-rows:42px 42px 42px}
+  .ctrl{width:44px;height:42px;font-size:17px}
+  .actions .ctrl{width:64px;height:49px;font-size:9px}
+  .actions .talk{width:70px;font-size:11px}
+  .actions .use{width:78px;font-size:8px}
+  #music{top:135px}
+  #skip{top:166px}
+}
+
+/* Phone landscape: fit job screens inside the viewport instead of making the player scroll. */
+@media (orientation:landscape) and (max-height:520px){
+  .overlay{padding:2px;overflow:hidden}
+  .overlay .card{
+    zoom:.72;
+    width:min(1180px,136vw);
+    max-width:none;
+    max-height:none;
+    overflow:hidden;
+    padding:13px 16px;
+  }
+  #jobMini .card,#jobMini2 .card{width:min(1180px,136vw);max-width:none;max-height:none;overflow:hidden}
+  .card h2{font-size:23px;margin:0 0 4px}
+  .card p{font-size:13px;line-height:1.22;margin:4px 0}
+  .miniHud{margin:4px 0;font-size:13px}
+  .boatTank{height:118px;margin:5px 0}
+  .realAssetRow{margin:4px 0;padding:5px;gap:8px}
+  .realAssetRow img{width:86px;height:56px}
+  .annualAssetGrid{gap:5px;margin:5px 0}
+  .annualAsset{padding:4px}
+  .annualAsset img{height:86px}
+  .annualAsset small{font-size:10px;margin-top:1px}
+  #annualControls{margin-top:4px}
+  .annualBig{min-height:42px;font-size:13px}
+  .annualProgress{margin:4px 0;height:9px}
+  .answers{gap:5px;margin-top:4px}
+  .answers button,.miniBtns button{padding:8px;font-size:12px}
+  .miniBtns{margin-top:5px}
+  .beverageHero{height:110px;margin:2px 0 5px}
+  .shopItem{padding:5px;margin:4px 0;gap:6px}
+  .shopItem img{width:55px;height:55px}
+  .primary,.wideBtn{padding:9px 12px;font-size:14px;margin-top:5px}
+  .money{font-size:31px}
+  .reviewBox{padding:6px;margin:5px 0}
+}
+@media (orientation:landscape) and (max-height:430px){
+  .overlay .card{zoom:.64;width:min(1320px,154vw)}
+  #jobMini .card,#jobMini2 .card{width:min(1320px,154vw)}
+  .annualAsset img{height:78px}
+  .boatTank{height:108px}
+}
+
+
+#videoCut{position:fixed;inset:0;z-index:49;display:none;background:#000;align-items:center;justify-content:center;overflow:hidden}
+#videoCut.show{display:flex}
+#cutVideo{width:100%;height:100%;object-fit:contain;background:#000}
+#videoSkip{position:absolute;right:18px;top:18px;z-index:3;border:1px solid #7defff88;background:#06111be8;color:#fff;font-weight:1000;border-radius:10px;padding:11px 15px;font-size:14px;box-shadow:0 8px 30px #0009}
+#videoLabel{position:absolute;left:18px;top:18px;z-index:3;background:#06111bdc;border-left:4px solid #ffd052;padding:9px 12px;font-weight:1000;letter-spacing:.06em}
+@media(max-width:760px){#videoSkip{right:9px;top:9px;padding:8px 10px;font-size:11px}#videoLabel{left:9px;top:9px;font-size:10px;padding:7px 9px}}
+
+
+/* ---- Call #2 annual service + hydration system ---- */
+#videoCut2{position:fixed;inset:0;z-index:50;display:none;background:#000;align-items:center;justify-content:center;overflow:hidden}
+#videoCut2.show{display:flex}
+#cutVideo2{width:100%;height:100%;object-fit:contain;background:#000}
+#videoSkip2{position:absolute;right:18px;top:18px;z-index:3;border:1px solid #7defff88;background:#06111be8;color:#fff;font-weight:1000;border-radius:10px;padding:11px 15px;font-size:14px;box-shadow:0 8px 30px #0009}
+#videoLabel2{position:absolute;left:18px;top:18px;z-index:3;background:#06111bdc;border-left:4px solid #ffd052;padding:9px 12px;font-weight:1000;letter-spacing:.06em}
+#inventoryBtn{position:fixed;right:8px;top:216px;z-index:18;border:1px solid #5beaff88;background:#07131ee8;color:#fff;font-size:11px;padding:7px 9px;display:none}
+.realAssetRow{display:flex;align-items:center;gap:12px;margin:10px 0;padding:8px;background:#0b1822;border:1px solid #345363;border-radius:12px}
+.realAssetRow img{width:112px;height:82px;object-fit:contain;background:#e8ebed;border-radius:9px}
+.realAssetRow b{display:block;color:#6feaff;margin-bottom:3px}
+#jobMini2 .card{max-width:860px;max-height:92vh;overflow:auto}
+.annualAssetGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:9px 0}
+.annualAsset{background:#0a1720;border:1px solid #314f5e;border-radius:12px;padding:7px;text-align:center}
+.annualAsset img{width:100%;height:150px;object-fit:contain;background:linear-gradient(#f0f2f3,#dadddf);border-radius:9px}
+.annualAsset small{display:block;color:#b8cad3;margin-top:4px}
+#annualControls{margin-top:8px}
+.annualBig{width:100%;min-height:58px;background:#315b78;color:#fff;font-weight:1000}
+.annualGood{background:#2e7c53!important}.annualBad{background:#8b3a43!important}
+.annualChoice{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.annualProgress{height:12px;background:#1b2c36;border-radius:999px;overflow:hidden;margin:8px 0}.annualProgress i{display:block;height:100%;background:linear-gradient(90deg,#38b9e8,#66dd8f);width:0%}
+#annualTrace{position:relative;height:180px;border:2px dashed #466575;border-radius:14px;background:radial-gradient(circle at 50% 45%,#20313b,#09131a 74%);touch-action:none;overflow:hidden}
+#annualTrace .uGuide{position:absolute;left:18%;right:18%;top:15%;bottom:18%;border-left:7px solid #f3b33d88;border-bottom:7px solid #f3b33d88;border-right:7px solid #f3b33d88;border-radius:0 0 95px 95px;pointer-events:none}
+#annualTrace .traceMsg{position:absolute;left:10px;right:10px;bottom:7px;text-align:center;color:#d6e4ea;font-size:11px;pointer-events:none}
+#annualSwipe{height:130px;border:2px dashed #466575;border-radius:14px;background:#0a151d;display:grid;place-items:center;touch-action:none;font-weight:1000;color:#ffd05b;user-select:none}
+#annualOilScene{position:relative;height:190px;background:linear-gradient(#e9ecee,#d9dcde);border-radius:13px;overflow:hidden;touch-action:none}
+#annualOilScene img{position:absolute;right:2%;top:5%;height:90%;width:42%;object-fit:contain}
+#annualOilStream{position:absolute;top:48px;left:66%;width:8px;height:105px;background:linear-gradient(#51351d,#1c140d);border-radius:999px;filter:drop-shadow(0 0 2px #000);z-index:2}
+#annualPan{position:absolute;left:38%;bottom:14px;width:118px;height:31px;background:#20262a;border:3px solid #4c5960;border-radius:8px 8px 18px 18px;box-shadow:inset 0 12px 0 #17110d;z-index:3;touch-action:none}
+#annualWind{position:absolute;left:10px;bottom:12px;z-index:4;background:#07131edc;color:#fff;padding:6px 9px;border-radius:999px;font-size:11px;font-weight:900}
+.annualPlugGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.annualPlugGrid button{padding:5px;min-height:110px}.annualPlugGrid img{width:100%;height:55px;object-fit:contain;background:#eceeef;border-radius:7px;display:block;margin-bottom:4px}
+#beverageMenu .card,#inventoryMenu .card{max-width:720px}
+.beverageHero{width:100%;height:220px;object-fit:contain;background:#e8ebed;border-radius:12px;margin:5px 0 10px}
+.shopItem{display:grid;grid-template-columns:75px 1fr auto;gap:10px;align-items:center;background:#0b1822;border:1px solid #345363;border-radius:12px;padding:8px;margin:8px 0}
+.shopItem img{width:75px;height:75px;object-fit:contain;background:#eef0f1;border-radius:9px}
+.shopItem button{min-width:92px}.shopItem small{color:#b8cad3}
+.invStats{background:#07131e;border:1px solid #365262;border-radius:12px;padding:10px;margin:8px 0;color:#dce8ed}
+@media(max-width:760px){#videoSkip2{right:9px;top:9px;padding:8px 10px;font-size:11px}#videoLabel2{left:9px;top:9px;font-size:10px;padding:7px 9px}#inventoryBtn{right:8px;top:84px}.annualAsset img{height:112px}.annualPlugGrid{grid-template-columns:repeat(2,1fr)}.shopItem{grid-template-columns:62px 1fr}.shopItem img{width:62px;height:62px}.shopItem button{grid-column:1/-1;width:100%}}
+
+/* FINAL short-landscape overrides must come after all minigame styles. */
+@media (orientation:landscape) and (max-height:520px){
+  .overlay{padding:2px!important;overflow:hidden!important}
+  .overlay .card{zoom:.72!important;width:min(1180px,136vw)!important;max-width:none!important;max-height:none!important;overflow:hidden!important;padding:13px 16px!important}
+  #jobMini .card,#jobMini2 .card,#beverageMenu .card,#inventoryMenu .card{max-width:none!important;max-height:none!important;overflow:hidden!important}
+  .card h2{font-size:23px!important;margin:0 0 4px!important}
+  .card p{font-size:13px!important;line-height:1.22!important;margin:4px 0!important}
+  .miniHud{margin:4px 0!important;font-size:13px!important}
+  .boatTank{height:118px!important;margin:5px 0!important}
+  .realAssetRow{margin:4px 0!important;padding:5px!important;gap:8px!important}
+  .realAssetRow img{width:86px!important;height:56px!important}
+  .annualAssetGrid{gap:5px!important;margin:5px 0!important}
+  .annualAsset{padding:4px!important}
+  .annualAsset img{height:86px!important}
+  .annualAsset small{font-size:10px!important;margin-top:1px!important}
+  #annualControls{margin-top:4px!important}
+  .annualBig{min-height:42px!important;font-size:13px!important}
+  .annualProgress{margin:4px 0!important;height:9px!important}
+  #annualTrace{height:118px!important}
+  #annualSwipe{height:86px!important}
+  #annualOilScene{height:125px!important}
+  .annualPlugGrid button{min-height:82px!important}
+  .annualPlugGrid img{height:40px!important}
+  .answers{gap:5px!important;margin-top:4px!important}
+  .answers button,.miniBtns button{padding:8px!important;font-size:12px!important}
+  .miniBtns{margin-top:5px!important}
+  .beverageHero{height:100px!important;margin:2px 0 5px!important}
+  .shopItem{padding:4px!important;margin:3px 0!important;gap:6px!important}
+  .shopItem img{width:50px!important;height:50px!important}
+  .shopItem button{min-width:74px!important;padding:7px!important;font-size:11px!important}
+  .invStats{padding:6px!important;margin:4px 0!important;font-size:12px!important}
+  .primary,.wideBtn{padding:9px 12px!important;font-size:14px!important;margin-top:5px!important}
+  .money{font-size:31px!important}
+  .reviewBox{padding:6px!important;margin:5px 0!important}
+}
+@media (orientation:landscape) and (max-height:430px){
+  .overlay .card{zoom:.64!important;width:min(1320px,154vw)!important}
+  .annualAsset img{height:72px!important}
+  .boatTank{height:102px!important}
+  #annualTrace{height:104px!important}
+  #annualSwipe{height:76px!important}
+  #annualOilScene{height:110px!important}
+  .beverageHero{height:88px!important}
+}
+
+
+/* ---- Job #3: stumble-upon sinking-boat diagnostic + Baby Bryan reveal ---- */
+#jobMini3 .card{max-width:930px;max-height:94vh;overflow:auto}
+.diag3Scene{position:relative;aspect-ratio:16/9;height:auto;border-radius:16px;overflow:hidden;background:#07131d;border:2px solid #315463;margin:8px 0;box-shadow:0 16px 36px #0007,inset 0 0 0 1px #ffffff12}
+.diag3BoatArt{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;pointer-events:none}
+.diag3BoatLabel{position:absolute;left:14px;top:12px;z-index:9;padding:6px 10px;border-radius:999px;background:#07131de8;border:1px solid #5fe2ff66;color:#e8fbff;font-weight:1000;font-size:12px;letter-spacing:.06em;box-shadow:0 8px 18px #0007}
+#diag3Water{position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,#74e8ff18 0%,#23c6e744 24%,#0a7eac88 62%,#064968bb 100%);transition:height .16s linear;z-index:4;pointer-events:none;backdrop-filter:saturate(1.08)}
+.diag3WaterFoam{position:absolute;left:-3%;right:-3%;bottom:calc(34% - 5px);height:11px;z-index:5;opacity:.88;transition:bottom .16s linear;pointer-events:none;background:radial-gradient(ellipse at center,#e9fdffdd 0 22%,#a4f3ff99 36%,transparent 68%);filter:blur(.4px)}
+.diag3Clue{position:absolute!important;z-index:8!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important;margin:0!important;border:0!important;border-radius:50%!important;background:#04101a24!important;box-shadow:0 0 0 2px #8befff44,0 0 18px #52e7ff55!important;transform:translate(-50%,-50%)!important;display:grid!important;place-items:center!important;overflow:visible!important;animation:cluePulse 1.6s ease-in-out infinite}
+.diag3Clue:hover,.diag3Clue:active{transform:translate(-50%,-50%) scale(1.08)!important}
+.diag3Clue.found{background:#124c32cc!important;box-shadow:0 0 0 2px #6ff0a8aa,0 0 22px #43e48977!important;animation:none;opacity:.86}
+.diag3Clue.found:after{content:'✓';position:absolute;right:-5px;top:-7px;width:21px;height:21px;border-radius:50%;display:grid;place-items:center;background:#4de486;color:#04130b;font-size:13px;font-weight:1000;border:2px solid #fff}
+.diag3Clue .emoji{font-size:27px;filter:drop-shadow(0 3px 4px #000c)}
+.diag3Clue .clueName{display:none;position:absolute;left:50%;top:45px;transform:translateX(-50%);white-space:nowrap;padding:3px 6px;border-radius:6px;background:#03101be8;color:#fff;font-size:9px;font-weight:1000;border:1px solid #5fe2ff55}
+.diag3Clue.found .clueName{display:block}
+.diag3Decoy{position:absolute!important;z-index:7!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;font-size:25px!important;opacity:.78!important;transform:translate(-50%,-50%)!important;filter:drop-shadow(0 3px 4px #000b)}
+.diag3Decoy.done{opacity:.22!important;pointer-events:none}
+@keyframes cluePulse{0%,100%{box-shadow:0 0 0 2px #8befff44,0 0 12px #52e7ff33}50%{box-shadow:0 0 0 3px #bff8ff99,0 0 26px #52e7ff99}}
+.fuseThing{display:block;width:25px;height:16px;background:#3b9cff;border:2px solid #d5efff;border-radius:3px;position:relative;box-shadow:inset 0 0 0 2px #0f4f88}
+.fuseThing:before,.fuseThing:after{content:'';position:absolute;bottom:-9px;width:5px;height:9px;background:#d4d8db;border-radius:0 0 1px 1px}.fuseThing:before{left:3px}.fuseThing:after{right:3px}
+.holderThing{display:block;width:29px;height:22px;background:#131313;border:3px solid #464646;border-radius:5px;position:relative;box-shadow:inset 0 0 0 3px #050505}.holderThing:after{content:'';position:absolute;left:7px;top:3px;width:9px;height:10px;border:2px solid #aaa;background:#020202;border-radius:2px}
+.diaperThing{display:grid;place-items:center;width:31px;height:25px;background:#f7f7ee;color:#222;font-size:14px;clip-path:polygon(10% 0,90% 0,100% 32%,82% 100%,18% 100%,0 32%);filter:drop-shadow(0 3px 4px #0008)}
+.diag3Panel{background:#091720;border:1px solid #315463;border-radius:12px;padding:9px;margin:7px 0}
+.diag3Panel b{color:#67eaff}
+.diag3Evidence{font-size:11px;color:#b9ced7;margin-top:4px}
+.diag3ScrollHint{position:absolute;left:50%;bottom:13px;z-index:95;transform:translateX(-50%);display:none;pointer-events:none;padding:9px 15px;border-radius:999px;background:#06131ef2;border:2px solid #65eaff;color:#eaffff;font-size:12px;font-weight:1000;letter-spacing:.055em;white-space:nowrap;box-shadow:0 0 0 2px #00101899,0 0 26px #42dbff88;animation:diag3ScrollBounce .85s ease-in-out infinite alternate}
+@keyframes diag3ScrollBounce{from{transform:translate(-50%,0)}to{transform:translate(-50%,-8px)}}
+@media(max-height:520px) and (orientation:landscape){.diag3ScrollHint{bottom:6px;font-size:10px;padding:6px 11px}}
+.archBryan{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:center}
+.archBryan img{width:220px;height:260px;object-fit:contain;background:#09131b;border:2px solid #ff645f;border-radius:16px;box-shadow:0 0 28px #ff3e3566}
+.archWarn{color:#ff6b62;font-weight:1000;letter-spacing:.07em}
+@media(max-width:700px){.archBryan{grid-template-columns:1fr}.archBryan img{width:150px;height:170px;margin:auto}.diag3Scene{height:auto}.diag3Clue{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}.diag3Clue .emoji{font-size:24px}}
+@media (orientation:landscape) and (max-height:520px){
+  #jobMini3 .card,#archNemesis .card{max-width:none!important;max-height:none!important;overflow:auto!important}
+  .diag3Scene{height:auto!important;margin:3px 0!important}
+  .diag3Clue{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important}
+  .diag3Clue .emoji{font-size:21px!important}.diag3Clue .clueName{font-size:8px!important;top:37px!important}
+  .diag3Panel{padding:5px!important;margin:3px 0!important;font-size:11px!important}
+  .archBryan{grid-template-columns:145px 1fr!important;gap:10px!important}.archBryan img{width:140px!important;height:150px!important}
+}
+
+
+
+/* ---- v12.5 progression / discovery-job polish ---- */
+#timeJump{position:fixed;inset:0;z-index:60;display:none;place-items:center;background:#02070c;color:#fff;text-align:center}
+#timeJump.show{display:grid;animation:timeJumpIn .45s ease both}
+.timeJumpInner{padding:24px;text-shadow:0 4px 24px #000}
+.timeJumpBig{font-size:clamp(42px,7vw,92px);font-weight:1000;letter-spacing:.06em;font-style:italic}
+.timeJumpSmall{margin-top:12px;color:#74eaff;font-size:clamp(13px,1.6vw,22px);font-weight:900;letter-spacing:.18em}
+@keyframes timeJumpIn{from{opacity:0}to{opacity:1}}
+
+#videoCut3{position:fixed;inset:0;z-index:58;display:none;background:#000;align-items:center;justify-content:center;overflow:hidden}
+#videoCut3.show{display:flex}
+#cutVideo3{width:100%;height:100%;object-fit:contain;background:#000}
+#videoSkip3{position:absolute;right:18px;top:18px;z-index:3;border:1px solid #7defff88;background:#06111be8;color:#fff;font-weight:1000;border-radius:10px;padding:11px 15px;font-size:14px;box-shadow:0 8px 30px #0009}
+#videoLabel3{position:absolute;left:18px;top:18px;z-index:3;background:#06111bdc;border-left:4px solid #b15cff;padding:9px 12px;font-weight:1000;letter-spacing:.06em}
+
+#jobBrief{z-index:59}
+#jobBrief .card{width:min(780px,95vw);border-top-color:#ffd157}
+.rickBrief{display:grid;grid-template-columns:86px 1fr;gap:14px;align-items:center;background:#0c2230;border:1px solid #55e9ff55;border-left:5px solid #ffd157;border-radius:13px;padding:13px;margin:12px 0}
+.rickBriefFace{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(#263a47,#07131d);border:2px solid #55e9ff66;font-size:39px;box-shadow:0 8px 22px #0008}
+.rickBrief b{display:block;color:#ffd157;font-size:13px;letter-spacing:.11em;margin-bottom:5px}
+#jobBriefQuote{font-size:17px;line-height:1.4;color:#fff;font-weight:800}
+.briefSteps{background:#07131d;border:1px solid #ffffff1f;border-radius:12px;padding:12px 15px;margin:10px 0 14px}
+.briefSteps strong{color:#72eaff;display:block;margin-bottom:7px;letter-spacing:.08em}
+.briefSteps ol{margin:0;padding-left:23px;color:#dce8ee;line-height:1.55;font-weight:700}
+#jobBriefStart{background:linear-gradient(90deg,#ffd04d,#63eab2);color:#07151c}
+@media(max-width:760px){.rickBrief{grid-template-columns:60px 1fr;gap:10px}.rickBriefFace{width:54px;height:54px;font-size:29px}#jobBriefQuote{font-size:14px}.briefSteps{font-size:13px}#videoSkip3{right:9px;top:9px;padding:8px 10px;font-size:11px}#videoLabel3{left:9px;top:9px;font-size:10px;padding:7px 9px}}
+</style>
+</head>
+<body>
+
+<div id="videoCut">
+ <div id="videoLabel">CUTSCENE 1 • RICK + DIESEL KYLE</div>
+ <video id="cutVideo" playsinline webkit-playsinline preload="auto" src="cutscene1.mp4"></video>
+ <button id="videoSkip">SKIP CUTSCENE</button>
+</div>
+
+
+<div id="videoCut2">
+ <div id="videoLabel2">CUTSCENE 2 • TOO DAMN HOT</div>
+ <video id="cutVideo2" playsinline webkit-playsinline preload="auto" src="cutscene2_heat.mp4"></video>
+ <button id="videoSkip2">SKIP CUTSCENE</button>
+</div>
+
+<div id="stage"><canvas id="game" width="1600" height="900"></canvas></div>
+
+<div id="start">
+ <div id="startBg"></div><div id="startShade"></div>
+ <div class="startCard">
+  <div class="kicker">Dockyard Deception • v12.1 hotfix</div>
+  <div class="logo">DOCKYARD<br><span>DECEPTION</span></div>
+  <div class="levelName">LEVEL 1: Why Did I Choose This Profession?</div>
+  <p>This build uses the wide marina dock layout, your video as Cutscene 1, three playable client calls, and the full Boat Baby Bryan reveal. Walk the finger docks, answer jobs, find the assigned slip, and survive Bryan's tiny trail of destruction.</p>
+  <button id="soundBtn">🔊 TAP FOR LOADING MUSIC</button>
+  <button id="continueBtn">CONTINUE SAVED GAME</button>
+  <button class="primary" id="startBtn">NEW GAME</button>
+  <div id="saveSummary"></div>
+  <div class="hint" id="startSongHint">♫ Mobile browsers usually block autoplay until you tap once. Use the music button above.</div>
+  <div class="hint">WASD / arrows move • Shift run • Space jump • T talk • E use/push • mobile controls included</div>
+ </div>
+</div>
+
+
+<div id="timeJump"><div class="timeJumpInner"><div class="timeJumpBig">A FEW MONTHS LATER...</div><div class="timeJumpSmall">MARINER'S POINT • PRESENT DAY</div></div></div>
+
+<div id="videoCut3">
+ <div id="videoLabel3">JOB 003 • SOMETHING IS VERY WRONG</div>
+ <video id="cutVideo3" playsinline webkit-playsinline preload="auto" src="job3_intro_cutscene.mp4"></video>
+ <button id="videoSkip3">SKIP CUTSCENE</button>
+</div>
+
+<div id="jobBrief" class="overlay"><div class="card">
+ <div class="kicker">RICK'S GAME PLAN • <span id="jobBriefNumber">JOB 001</span></div>
+ <h2 id="jobBriefTitle">Before you touch anything...</h2>
+ <div class="rickBrief"><div class="rickBriefFace">😎</div><div><b>RICK SAYS:</b><div id="jobBriefQuote"></div></div></div>
+ <div class="briefSteps"><strong>WHAT WE'RE DOING:</strong><ol id="jobBriefSteps"></ol></div>
+ <button id="jobBriefStart" class="wideBtn">LET'S FIX THIS SHIT</button>
+</div></div>
+
+<div id="call" class="overlay"><div class="card">
+ <div class="kicker">📞 Incoming Call — <span id="callNumber">555-555-5555</span></div>
+ <h2 id="callTitle">Boat Daddy Rick's First Client</h2>
+ <p><b>CLIENT:</b> <span id="callText">“Hi, I need a mobile marine mechanic. My boat is taking on water and I don't know what to do.”</span></p>
+ <div class="two"><button id="take" class="yes">TAKE JOB</button><button id="decline" class="no">DECLINE JOB</button></div>
+</div></div>
+
+<div id="rules" class="overlay"><div class="card">
+ <div class="kicker">HOW JOBS WORK</div><h2>Congratulations. You're self-employed.</h2>
+ <div class="rule"><b>Finish jobs:</b> <span>Earn cash + reputation.</span></div>
+ <div class="rule"><b>Every 5 completed jobs:</b> <span>Earn a positive client review.</span></div>
+ <div class="rule"><b>Miss a scheduled job:</b> <span>Immediate 1-star review.</span></div>
+ <div class="rule"><b>Bad / incomplete repair:</b> <span>3 attempts. Fail all 3, get a 1-star review and restart the level.</span></div>
+ <button id="rulesOk" class="wideBtn">FIND THE CLIENT</button>
+</div></div>
+
+<div id="tutorial" class="overlay"><div class="card">
+ <div class="kicker">NEW DOCK HAZARD</div><div class="jumpIcon">⬆️</div>
+ <h2>Nice new docks. One of them is still missing a chunk.</h2>
+ <p>Press <b>JUMP</b> to clear the opening, or move toward the back rail and use the narrow bypass. Fall in and the shark gets a free mechanic appetizer.</p>
+ <button id="tutorialOk" class="wideBtn">GOT IT</button>
+</div></div>
+
+<div id="jobMini" class="overlay"><div class="card">
+ <div class="kicker">JOB 001 • WATER INTRUSION</div><h2>Keep the damn boat afloat.</h2>
+ <div class="miniHud"><div><b>Attempt:</b> <span id="attemptTxt">1 / 3</span></div><div><b>Time:</b> <span id="miniTime">27.0</span>s</div></div>
+ <div class="meter"><div id="progressFill" class="fill"></div></div>
+ <div class="boatTank"><div class="boatBody"></div><div id="miniWater" class="water"></div><div class="leak">💦</div><div class="clue">Clue: water gets worse whenever the livewell pump runs.</div></div>
+ <div id="miniText"><b>STEP 1:</b> Shut down the livewell before diagnosing the leak.</div><div class="realAssetRow"><img src="bilge_pump_job.webp" alt="Bilge pump"><div><b>12V BILGE PUMP</b><span>Once the leak is stopped, use the pump to clear the bilge. This is the part you are actually working with.</span></div></div>
+ <div class="miniBtns"><button id="liveBtn">TURN LIVEWELL OFF</button><button id="clampBtn" disabled>CLAMP HOSE (0/5)</button><button id="unclogBtn" disabled>UNCLOG BILGE INTAKE (0/3)</button><button id="pumpBtn" disabled>PUMP BILGE</button></div>
+ <div id="diag" style="display:none">
+  <p><b>Diagnostic:</b> Based on the clue, what is the most likely source?</p>
+  <div class="answers"><button data-a="plug">Missing drain plug</button><button data-a="hose">Livewell hose popped off</button><button data-a="hull">Cracked hull</button></div>
+ </div>
+</div></div>
+
+
+<div id="jobMini2" class="overlay"><div class="card">
+ <div class="kicker">JOB 002 • 4-STROKE ANNUAL SERVICE</div><h2>Annual service. Do it right before the owner starts telling you how YouTube does it.</h2>
+ <div class="miniHud"><div><b>Attempt:</b> <span id="attemptTxt2">1 / 3</span></div><div><b>Time:</b> <span id="miniTime2">150.0</span>s</div><div><b>Mistakes:</b> <span id="annualMistakes">0 / 3</span></div></div>
+ <div class="meter"><div id="progressFill2" class="fill"></div></div>
+ <div id="annualAssetGrid" class="annualAssetGrid"></div>
+ <div id="miniText2"><b>STEP 1:</b> Extract the engine oil.</div>
+ <div id="annualControls"></div>
+</div></div>
+
+<div id="failure" class="overlay"><div class="card">
+ <div class="kicker">JOB FAILED</div><h2 id="failTitle">That went badly.</h2><p id="failText"></p>
+ <div class="reviewBox">★ <b>1-STAR REVIEW:</b> <span id="reviewStatus">Not posted yet.</span></div>
+ <button id="retryBtn" class="wideBtn">RETRY</button>
+</div></div>
+
+<div id="completion" class="overlay"><div class="card">
+ <div class="kicker">JOB COMPLETE!</div><h2 id="completeTitle">You finished the job.</h2>
+ <div class="money" id="completeMoney">$350</div><p><span class="star">★</span> Reputation: <b id="completeRep">+100</b></p>
+ <div class="reviewBox"><b>Good review progress:</b> <span id="goodProgress">1 / 5 jobs</span><br>Every 5 successful jobs earns a positive review.<br><br><b>1-star reviews:</b> <span id="badCount">0</span></div>
+ <button id="completeOk" class="wideBtn">BACK TO THE MARINA</button>
+</div></div>
+
+
+
+<div id="jobMini3" class="overlay"><div class="card">
+ <div class="kicker">JOB 003 • EMERGENCY DIAGNOSTIC</div><h2>This bowrider is actively trying to become a submarine.</h2>
+ <div class="miniHud"><div><b>Attempt:</b> <span id="attemptTxt3">1 / 3</span></div><div><b>Time:</b> <span id="miniTime3">70.0</span>s</div><div><b>Clues:</b> <span id="diag3ClueCount">0 / 5</span></div></div>
+ <div class="meter"><div id="diag3Progress" class="fill"></div></div>
+ <div class="diag3Scene" id="diag3Scene">
+  <img id="diag3BoatArt" class="diag3BoatArt" alt="Flooded bowrider at the dock">
+  <div class="diag3BoatLabel">TAP THE CLUES • WATER IS STILL RISING</div>
+  <button class="diag3Clue" data-clue="prints" style="left:42%;top:67%" aria-label="Tiny wet footprints"><span class="emoji">👣</span><span class="clueName">WET PRINTS</span></button>
+  <button class="diag3Clue" data-clue="binky" style="left:54%;top:74%" aria-label="Binky"><span class="emoji">🍼</span><span class="clueName">BINKY</span></button>
+  <button class="diag3Clue" data-clue="diaper" style="left:61%;top:58%" aria-label="Diaper with wrench logo"><span class="diaperThing">🔧</span><span class="clueName">WRENCH DIAPER</span></button>
+  <button class="diag3Clue" data-clue="holder" style="left:72%;top:44%" aria-label="Empty bilge pump fuse holder"><span class="holderThing"></span><span class="clueName">EMPTY HOLDER</span></button>
+  <button class="diag3Clue" data-clue="fuse" style="left:68%;top:53%" aria-label="Fuse lying on deck"><span class="fuseThing"></span><span class="clueName">LOOSE FUSE</span></button>
+  <button class="diag3Decoy" data-decoy="rope" style="left:82%;top:78%" aria-label="Rope">🪢</button>
+  <button class="diag3Decoy" data-decoy="bottle" style="left:34%;top:54%" aria-label="Bottle">🧴</button>
+  <button class="diag3Decoy" data-decoy="glasses" style="left:49%;top:49%" aria-label="Sunglasses">🕶️</button>
+  <div id="diag3Water"></div><div class="diag3WaterFoam"></div>
+ </div>
+ <div id="diag3Text"><b>INVESTIGATE:</b> Find what Boat Baby Bryan left behind. Wrong taps cost time while the water keeps climbing.</div>
+ <div id="diag3Test" class="diag3Panel" style="display:none">
+   <b>PUMP DOES NOTHING. WHAT DO YOU TEST FIRST?</b>
+   <div class="answers" style="margin-top:6px">
+    <button data-test="voltage">CHECK VOLTAGE AT BILGE PUMP</button>
+    <button data-test="parts">REPLACE THE PUMP</button>
+    <button data-test="battery">REPLACE THE BATTERY</button>
+   </div>
+ </div>
+ <div id="diag3Power" class="diag3Panel" style="display:none">
+   <b>0.0 V AT THE PUMP. TRACE THE POWER.</b>
+   <div class="answers" style="margin-top:6px">
+    <button data-power="battery">CHECK BATTERY / POWER FEED</button>
+    <button data-power="jump">JUMP THE PUMP AND HOPE</button>
+    <button data-power="parts">ORDER ANOTHER PUMP</button>
+   </div>
+ </div>
+ <div id="diag3FusePanel" class="diag3Panel" style="display:none">
+   <b id="diag3FuseTitle">EMPTY BILGE FUSE HOLDER + LOOSE FUSE</b>
+   <div id="diag3FuseText" class="diag3Evidence">The battery feed is 12.6 V. Bryan pulled the bilge-pump fuse and dropped it on the deck right beside the empty holder.</div>
+   <div class="miniBtns"><button id="diag3TestFuse">TEST LOOSE FUSE FOR CONTINUITY</button><button id="diag3InstallFuse" disabled>REINSTALL GOOD FUSE (0/2)</button><button id="diag3TestFloat" disabled>TEST FLOAT SWITCH / PUMP</button></div>
+ </div>
+</div><div id="diag3ScrollHint" class="diag3ScrollHint">↓ SCROLL FOR DIAGNOSTIC OPTIONS ↓</div></div>
+
+<div id="archNemesis" class="overlay"><div class="card">
+ <div class="kicker archWarn">⚠ ARCH NEMESIS UNLOCKED ⚠</div>
+ <div class="archBryan">
+   <img src="boat_baby_bryan.png" alt="Boat Baby Bryan">
+   <div>
+    <h2>BOAT BABY BRYAN</h2>
+    <p><b>Boat Baby Bryan is Rick's arch nemesis.</b></p>
+    <p>He is always destroying boats, sabotaging perfectly good equipment, and ruining people's fun in the sun.</p>
+    <p>If a boat is mysteriously broken, sinking, on fire, missing parts, or surrounded by baby shit that absolutely should not be there... <b>Bryan is probably nearby.</b></p>
+    <p><b>Evidence recovered so far:</b> one binky, one used diaper with a wrench logo, and one perfectly good bilge-pump fuse pulled out and dropped on the deck. <b>That little stinker.</b></p>
+    <div class="reviewBox">👶 Threat level: <b>unsupervised</b><br>🔧 Favorite weapon: <b>whatever tool he should not have</b></div>
+   </div>
+ </div>
+ <button id="archOk" class="wideBtn">GOD DAMMIT BRYAN — KEEP MOVING</button>
+</div></div>
+
+<div id="cartInfo" class="overlay">
+ <div class="card">
+  <h2>🥤 MARINA BEVERAGE CART</h2>
+  <p><b>You only pass one beverage cart per level.</b> If you think you will need drinks later, stock up when you see it.</p>
+  <div class="rule"><b>WATER</b> <span>+10 HP</span></div>
+  <div class="rule"><b>RED BULL</b> <span>+2 HP and +5% speed. Speed boosts stack.</span></div>
+  <div class="rule"><b>INVENTORY CARRIES FORWARD</b> <span>Drinks you buy can be saved for later levels.</span></div>
+  <div class="rule"><b>TIPS</b> <span>Every $50 tipped earns a good review and +5 reputation.</span></div>
+  <button id="cartInfoOk" class="wideBtn">GOT IT — STOCK UP WHEN I SEE IT</button>
+ </div>
+</div>
+
+<div id="beverageMenu" class="overlay"><div class="card">
+ <div class="kicker">MARINA BEVERAGES</div><h2>Hydrate or weaponize caffeine.</h2>
+ <img class="beverageHero" src="drink_cart.png" alt="Beverage cart">
+ <div class="shopItem"><img src="water_shop.webp"><div><b>WATER — $2</b><br><small>Carry it. Drinking restores +10 HP.</small></div><button id="buyWater" class="yes">BUY</button></div>
+ <div class="shopItem"><img src="redbull_shop.webp"><div><b>RED BULL — $3</b><br><small>Carry it. Drinking gives +2 HP and +5% speed. Speed stacks.</small></div><button id="buyRedbull" class="yes">BUY</button></div>
+ <div class="shopItem"><div style="font-size:46px;text-align:center">💵</div><div><b>LEAVE A $5 TIP</b><br><small>Tips accumulate across levels. Every $50 tipped earns one good review and reputation points.</small></div><button id="tipFive">TIP $5</button></div>
+ <div class="invStats" id="shopStats"></div>
+ <button id="closeShop" class="wideBtn">BACK TO THE DOCK</button>
+</div></div>
+
+<div id="inventoryMenu" class="overlay"><div class="card">
+ <div class="kicker">DRINK INVENTORY</div><h2>Emergency mechanic nutrition.</h2>
+ <div class="shopItem"><img src="water_shop.webp"><div><b>WATER</b><br><small id="waterCount">0 carried</small></div><button id="drinkWater" class="yes">DRINK</button></div>
+ <div class="shopItem"><img src="redbull_shop.webp"><div><b>RED BULL</b><br><small id="redbullCount">0 carried</small></div><button id="drinkRedbull" class="yes">DRINK</button></div>
+ <div class="invStats" id="invStats"></div>
+ <button id="closeInventory" class="wideBtn">CLOSE</button>
+</div></div>
+
+<div id="missed" class="overlay"><div class="card">
+ <div class="kicker">MISSED APPOINTMENT</div><h2>The client waited. Rick didn't.</h2><p>You missed the accepted job. That's a <b>1-star review</b>.</p>
+ <div class="reviewBox">★ “Scheduled a mechanic. Never showed.”</div><button id="restartMiss" class="wideBtn">RESTART LEVEL</button>
+</div></div>
+
+<button id="music">♫ SYNTHWAVE ON</button><button id="skip">SKIP CUTSCENE</button><button id="inventoryBtn">🥤 DRINKS</button>
+
+<div id="controls">
+ <div class="dpad"><button class="ctrl u" id="up">▲</button><button class="ctrl l" id="left">◀</button><button class="ctrl r" id="right">▶</button><button class="ctrl d" id="down">▼</button></div>
+ <div class="actions"><button class="ctrl" id="jump">JUMP</button><button class="ctrl talk" id="talk">TALK</button><button class="ctrl use" id="action">USE<br>PUSH</button></div>
+</div>
+
+<script>
+const ASSETS={"marina": "marina_scene.png", "title": "title_screen.png", "dialogueSheet": "dialogue_sheet.png", "rickLaugh": "rick_laugh.png", "kyleLaugh": "kyle_laugh.png", "rickPoster": "rick_poster.png", "kyleWorld": "kyle_world.png", "rick_idle": "rick_idle.png", "rick_walk1": "rick_walk1.png", "rick_walk2": "rick_walk2.png", "rick_walk3": "rick_walk3.png", "rick_walk4": "rick_walk4.png", "rick_run1": "rick_run1.png", "rick_run2": "rick_run2.png", "rick_run3": "rick_run3.png", "npc1": "npc1.png", "npc2": "npc2.png", "npc3": "npc3.png", "npc4": "npc4.png"};
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),W=1600,H=900;
+ctx.imageSmoothingEnabled=true;
+const $=id=>document.getElementById(id);
+$('startBg').style.backgroundImage=`url("${ASSETS.title}")`;
+const imgs={};for(const [k,v] of Object.entries(ASSETS)){const i=new Image();i.src=v;imgs[k]=i}
+const EXTRA_ASSETS={"bilge":"bilge_pump_job.webp","outboard":"outboard.webp","powerhead":"powerhead.webp","extractor":"extractor.webp","filter":"filter.webp","lower":"lower.webp","sparkTool":"spark_tool.webp","sparkPlug":"spark_plug.webp","fuel":"fuel.webp","spray":"spray.webp","screwdriver":"screwdriver.webp","wrench":"wrench.webp","gearPump":"gear_pump.png","cart":"drink_cart.png","water":"water_shop.webp","redbull":"redbull_shop.webp"};
+const extraImgs={};for(const [k,v] of Object.entries(EXTRA_ASSETS)){const i=new Image();i.src=v;extraImgs[k]=i}
+const DIAG3_SINKING_BOAT='sinking_boat_scene.png';
+
+document.addEventListener('contextmenu',e=>e.preventDefault(),{passive:false});
+document.addEventListener('selectstart',e=>e.preventDefault(),{passive:false});
+document.addEventListener('dragstart',e=>e.preventDefault(),{passive:false});
+for(const ev of ['touchstart','touchmove','touchend','touchcancel'])document.addEventListener(ev,e=>{if(e.target.closest('#controls')||e.target===canvas)e.preventDefault()},{passive:false});
+
+const input={l:false,r:false,u:false,d:false,jump:false,talk:false,action:false,run:false,talkLatch:false,actionLatch:false};
+function hold(id,key){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();input[key]=true});for(const ev of ['pointerup','pointercancel','pointerleave'])el.addEventListener(ev,e=>{e.preventDefault();input[key]=false})}
+hold('left','l');hold('right','r');hold('up','u');hold('down','d');hold('jump','jump');hold('talk','talk');hold('action','action');
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='a'||e.key==='ArrowLeft')input.l=true;if(k==='d'||e.key==='ArrowRight')input.r=true;if(k==='w'||e.key==='ArrowUp')input.u=true;if(k==='s'||e.key==='ArrowDown')input.d=true;if(e.key===' '){input.jump=true;e.preventDefault()}if(k==='t'||k==='q')input.talk=true;if(k==='e')input.action=true;if(e.key==='Shift')input.run=true});
+addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(k==='a'||e.key==='ArrowLeft')input.l=false;if(k==='d'||e.key==='ArrowRight')input.r=false;if(k==='w'||e.key==='ArrowUp')input.u=false;if(k==='s'||e.key==='ArrowDown')input.d=false;if(e.key===' ')input.jump=false;if(k==='t'||k==='q')input.talk=false;if(k==='e')input.action=false;if(e.key==='Shift')input.run=false});
+
+let mode='title',cutT=0,last=performance.now(),time=0;
+let currentCall=1, completedCalls=0, lastTargetX=null;
+let dockScene=0; // 0=start marina, 1=east service dock, 2=beverage walk, 3=emergency dock
+let waitingForCall2=false,call2WalkDistance=0,call1Offered=false,call3Offered=false,job3IntroPlayed=false;
+const CALL2_WALK_DISTANCE=520;
+const clientCalls=[
+ {number:'555-555-5555',title:"Boat Daddy Rick's First Client",text:'“Hi, I need a mobile marine mechanic. My boat is taking on water and I don’t know what to do.”',type:'water',pay:350,rep:100},
+ {number:'555-555-0182',title:'Client Call #2 — Annual Service',text:'“Hey, can you do the annual service on my 4-stroke? Oil, filter, gear oil, plugs, fuel filter — the whole thing.”',type:'annual',pay:650,rep:100},
+ {number:'—',title:'JOB #3 — STUMBLED UPON A SINKING BOAT',text:'Rick finds this one the hard way. No phone call. No warning.',type:'diagnostic',pay:450,rep:100}
+];
+const DOCK_SCENES=[
+ [
+  {x:45,y:642,w:1510,h:170,kind:'main'},
+  {x:120,y:420,w:165,h:292,kind:'finger'},
+  {x:465,y:420,w:165,h:292,kind:'finger'},
+  {x:810,y:420,w:165,h:292,kind:'finger'},
+  {x:1155,y:420,w:165,h:292,kind:'finger'}
+ ],
+ [
+  {x:45,y:642,w:1510,h:170,kind:'main'},
+  {x:235,y:420,w:185,h:292,kind:'finger'},
+  {x:690,y:420,w:185,h:292,kind:'finger'},
+  {x:1145,y:420,w:185,h:292,kind:'finger'}
+ ],
+ [
+  {x:45,y:642,w:1510,h:170,kind:'main'},
+  {x:260,y:470,w:180,h:242,kind:'finger'}
+ ],
+ [
+  {x:45,y:642,w:1510,h:170,kind:'main'},
+  {x:300,y:420,w:190,h:292,kind:'finger'},
+  {x:1120,y:420,w:210,h:292,kind:'finger'}
+ ]
+];
+function currentDockRects(){return DOCK_SCENES[dockScene]||DOCK_SCENES[0]}
+function pointOnNewDock(x,y){
+ let ok=false;
+ for(const r of currentDockRects()){if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h){ok=true;break}}
+ // Only the opening marina has the jump gap. The later dock screens are cleaner / less crowded.
+ if(dockScene===0 && ok && y>705 && x>910 && x<1030) ok=false;
+ return ok;
+}
+
+const portraitPhone=()=>window.innerHeight>window.innerWidth && window.innerWidth<900;
+let money=0,rep=0,goodJobs=0,goodReviews=0,badReviews=0,health=100;
+
+let waterInv=0,redbullInv=0,tipsTotal=0,speedBoost=0,tipReviewMilestones=0,beverageUnlocked=false,cartInfoSeen=false;
+const GAME_SAVE_KEY='dockyardDeceptionSave_v1';
+const GAME_SAVE_VERSION=1;
+let loadedSave=null;
+try{
+ loadedSave=JSON.parse(localStorage.getItem(GAME_SAVE_KEY)||'null');
+ if(loadedSave&&loadedSave.version===GAME_SAVE_VERSION){
+  money=+loadedSave.money||0;rep=+loadedSave.rep||0;goodJobs=+loadedSave.goodJobs||0;goodReviews=+loadedSave.goodReviews||0;badReviews=+loadedSave.badReviews||0;health=Math.max(1,Math.min(100,+loadedSave.health||100));
+  waterInv=+loadedSave.waterInv||0;redbullInv=+loadedSave.redbullInv||0;tipsTotal=+loadedSave.tipsTotal||0;speedBoost=+loadedSave.speedBoost||0;tipReviewMilestones=+loadedSave.tipReviewMilestones||0;
+  completedCalls=+loadedSave.completedCalls||0;currentCall=Math.max(1,+loadedSave.currentCall||1);beverageUnlocked=!!loadedSave.beverageUnlocked;cartInfoSeen=!!loadedSave.cartInfoSeen;call3Offered=!!loadedSave.call3Offered;
+ }else loadedSave=null;
+}catch(e){loadedSave=null}
+// Migrate the older drink-only test save once, if there is no unified save yet.
+if(!loadedSave){try{const old=JSON.parse(localStorage.getItem('dockyardDrinks')||'null');if(old){waterInv=+old.waterInv||0;redbullInv=+old.redbullInv||0;tipsTotal=+old.tipsTotal||0;speedBoost=+old.speedBoost||0;tipReviewMilestones=+old.tipReviewMilestones||0}}catch(e){}}
+function safeCheckpoint(){
+ if(completedCalls>=3)return 'after_job3';
+ if(completedCalls>=2)return 'after_job2';
+ if(completedCalls>=1)return 'after_job1';
+ return 'start';
+}
+function saveGame(checkpoint){
+ try{
+  const data={version:GAME_SAVE_VERSION,level:1,unlockedLevels:[1],checkpoint:checkpoint||safeCheckpoint(),money,rep,goodJobs,goodReviews,badReviews,health,waterInv,redbullInv,tipsTotal,speedBoost,tipReviewMilestones,completedCalls,currentCall,beverageUnlocked,cartInfoSeen,call1Offered,call3Offered,job3IntroPlayed,babyBryanUnlocked:completedCalls>=3,player:{dockScene,x:player.x,y:player.y,dir:player.dir},savedAt:Date.now()};
+  localStorage.setItem(GAME_SAVE_KEY,JSON.stringify(data));loadedSave=data;refreshSaveTitle();
+ }catch(e){}
+}
+function saveDrinkState(){saveGame()}
+function clearGameSave(){try{localStorage.removeItem(GAME_SAVE_KEY);localStorage.removeItem('dockyardDrinks')}catch(e){}loadedSave=null;refreshSaveTitle()}
+function refreshSaveTitle(){
+ const btn=$('continueBtn'),box=$('saveSummary');if(!btn||!box)return;
+ if(!loadedSave){btn.style.display='none';box.style.display='none';return}
+ btn.style.display='block';box.style.display='block';
+ const job=Math.min(3,+loadedSave.completedCalls||0);
+ box.innerHTML=`AUTOSAVE • Jobs cleared: <b>${job}/3</b> • Cash: <b>$${+loadedSave.money||0}</b> • Rep: <b>${+loadedSave.rep||0}</b> • Water: <b>${+loadedSave.waterInv||0}</b> • Red Bull: <b>${+loadedSave.redbullInv||0}</b>`;
+}
+
+let notice='',noticeT=0,toast='',toastT=0,speech='',speechT=0,speechNpc='';
+let activeJob=false,target=null,deadline=0,tutorialSeen=false,laughPlayed=false;
+let attempt=1,miniClock=30,water=.38,stage=0,clamps=0,unclogs=0;
+
+const player={x:420,y:674,z:0,vz:0,dir:1,state:'idle',animT:0};
+const kyle={x:1040,y:660,dir:-1};
+
+const gap={x1:910,x2:1025,frontY:666}; // foreground opening
+const npcDefs=[
+ {scene:0,x:350,y:680,dir:1,speed:34,key:'npc1',scale:1.18,name:'Dock Guy'},
+ {scene:0,x:700,y:680,dir:-1,speed:42,key:'npc2',scale:1.18,name:'Boat Owner'},
+ {scene:0,x:1100,y:680,dir:1,speed:31,key:'npc3',scale:1.16,name:'Client'},
+ {scene:0,x:1420,y:680,dir:-1,speed:38,key:'npc4',scale:1.17,name:'Quick-Fix Guy'},
+ {scene:1,x:470,y:680,dir:1,speed:29,key:'npc2',scale:1.14,name:'Service Dock Owner'},
+ {scene:1,x:900,y:680,dir:-1,speed:31,key:'npc3',scale:1.13,name:'Waiting Customer'},
+ {scene:3,x:650,y:680,dir:1,speed:27,key:'npc1',scale:1.14,name:'Panicked Boat Owner'}
+];
+const talkLines=[
+ "If you say 'it ran fine last time,' I'm charging extra.",
+ "I fix boats. I don't perform miracles on Craigslist wiring.",
+ "Your buddy already diagnosed it? Sweet. Call your buddy.",
+ "Please don't tell me it's probably just a fuse.",
+ "That's not corrosion. That's a science experiment.",
+ "If it was an easy fix, you would've fixed it.",
+ "I can fix the boat. The owner is outside my warranty.",
+ "YouTube University strikes again.",
+ "How many people touched the wiring before you called me?",
+ "Nothing scares me like a client saying, 'I already started taking it apart.'",
+ "If you ask for a discount before I diagnose it, the price goes up.",
+ "The good news is I found the problem. The bad news is... you own it."
+];
+
+// Service points now sit at the ends of the new wide finger docks.
+const jobSpots=[
+ {scene:1,x:1235,y:455,label:'DOCK 2 • EAST SERVICE SLIP E3',boat:'white center console waiting at Dock 2',kind:'center'},
+ {scene:2,x:350,y:495,label:'DOCK 3 • SERVICE SLIP W1',boat:'4-stroke center console waiting at Dock 3',kind:'service'},
+ {scene:3,x:1225,y:455,label:'DOCK 4 • EMERGENCY SLIP SINK-1',boat:'sinking blue-and-white bowrider at the emergency dock',kind:'sinking'}
+];
+function chooseTarget(){
+ target=jobSpots[Math.max(0,Math.min(jobSpots.length-1,currentCall-1))];
+ lastTargetX=target.x;
+}
+
+function sfx(type){
+ try{
+  const ac=sfx.ac||(sfx.ac=new (window.AudioContext||window.webkitAudioContext)()),o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;
+  o.connect(g);g.connect(ac.destination);o.type=type==='splash'?'sawtooth':'square';
+  let f=type==='phone'?760:type==='cash'?650:type==='jump'?245:type==='talk'?510:type==='push'?120:170;
+  o.frequency.setValueAtTime(f,n);o.frequency.exponentialRampToValueAtTime(type==='cash'?1100:type==='jump'?430:75,n+.18);
+  g.gain.setValueAtTime(.065,n);g.gain.exponentialRampToValueAtTime(.001,n+.3);o.start(n);o.stop(n+.32)
+ }catch(e){}
+}
+function laughSfx(){try{const ac=sfx.ac||(sfx.ac=new (window.AudioContext||window.webkitAudioContext)());[0,.14,.28,.42,.58,.74,.92,1.08].forEach((d,i)=>{let o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime+d;o.type=i%2?'triangle':'sawtooth';o.frequency.setValueAtTime(185+(i%3)*28,n);o.frequency.exponentialRampToValueAtTime(250+(i%3)*32,n+.07);g.gain.setValueAtTime(.001,n);g.gain.exponentialRampToValueAtTime(.05,n+.012);g.gain.exponentialRampToValueAtTime(.001,n+.1);o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+.12)})}catch(e){}}
+
+// Fast synthwave
+let musicOn=true,musicCtx=null,musicTimer=null,musicStep=0,master=null;
+const bass=[45,45,52,45,41,41,48,41,38,38,45,38,41,41,48,52],lead=[69,72,76,72,67,71,74,79,69,72,76,81,67,71,74,72];
+const midi=n=>440*Math.pow(2,(n-69)/12);
+function note(f,d=.1,v=.032,type='sawtooth'){if(!musicCtx||!musicOn)return;let o=musicCtx.createOscillator(),g=musicCtx.createGain(),n=musicCtx.currentTime+.01;o.type=type;o.frequency.value=f;o.connect(g);g.connect(master);g.gain.setValueAtTime(.001,n);g.gain.exponentialRampToValueAtTime(v,n+.01);g.gain.exponentialRampToValueAtTime(.001,n+d);o.start(n);o.stop(n+d+.02)}
+function kick(){if(!musicCtx||!musicOn)return;let o=musicCtx.createOscillator(),g=musicCtx.createGain(),n=musicCtx.currentTime;o.type='sine';o.frequency.setValueAtTime(150,n);o.frequency.exponentialRampToValueAtTime(44,n+.13);g.gain.setValueAtTime(.28,n);g.gain.exponentialRampToValueAtTime(.001,n+.17);o.connect(g);g.connect(master);o.start(n);o.stop(n+.18)}
+function snare(){if(!musicCtx||!musicOn)return;let n=musicCtx.currentTime,len=Math.floor(musicCtx.sampleRate*.09),b=musicCtx.createBuffer(1,len,musicCtx.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);let s=musicCtx.createBufferSource(),g=musicCtx.createGain();s.buffer=b;g.gain.value=.11;s.connect(g);g.connect(master);s.start(n)}
+function tickMusic(){if(!musicCtx||!musicOn)return;let i=musicStep%16;if(i%4===0)kick();if(i===4||i===12)snare();note(midi(bass[i]-12),.16,.06);if(i%2===0){note(midi(lead[i]),.09,.028,'square');note(midi(lead[i]+12),.07,.012,'triangle')}musicStep++}
+function startMusic(){if(musicCtx)return;try{musicCtx=new (window.AudioContext||window.webkitAudioContext)();master=musicCtx.createGain();master.gain.value=.5;master.connect(musicCtx.destination);musicTimer=setInterval(tickMusic,101)}catch(e){}}
+
+const MUSIC_TRACK='music_track.wav';
+
+const LOADING_SCREEN_TRACK='loading_song.mp3';
+const loadingSongAudio=new Audio(LOADING_SCREEN_TRACK);
+loadingSongAudio.loop=false;
+loadingSongAudio.preload='auto';
+loadingSongAudio.volume=.84;
+let loadingSongPrimed=false;
+async function tryPlayLoadingSong(reset=false){
+ if(!musicOn||$('start').style.display==='none')return false;
+ try{
+   if(reset && loadingSongAudio.paused)loadingSongAudio.currentTime=3;
+   await loadingSongAudio.play();
+   loadingSongPrimed=true;
+   const hint=$('startSongHint');
+   if(hint)hint.textContent='♫ Loading song playing from 0:03.';
+   const sb=$('soundBtn');if(sb)sb.textContent='♫ LOADING MUSIC PLAYING';
+   return true;
+ }catch(err){
+   const hint=$('startSongHint');
+   if(hint)hint.textContent='♫ Autoplay was blocked. Tap “TAP FOR LOADING MUSIC” once.';
+   return false;
+ }
+}
+function stopLoadingSong(){
+ try{loadingSongAudio.pause();loadingSongAudio.currentTime=0;}catch(e){}
+}
+window.addEventListener('load',()=>{setTimeout(()=>{tryPlayLoadingSong(true)},180);});
+$('soundBtn').onclick=async()=>{
+ if(!musicOn){musicOn=true;try{$('music').textContent='♫ SYNTHWAVE ON'}catch(e){}}
+ if(loadingSongAudio.paused)await tryPlayLoadingSong(!loadingSongPrimed);
+ else{loadingSongAudio.pause();$('soundBtn').textContent='🔊 TAP FOR LOADING MUSIC';const hint=$('startSongHint');if(hint)hint.textContent='♫ Loading music paused.'}
+};
+$('start').addEventListener('pointerdown',(ev)=>{
+ const id=ev.target&&ev.target.id;
+ if(id==='startBtn'||id==='continueBtn'||id==='soundBtn')return;
+ if(!loadingSongPrimed&&loadingSongAudio.paused)tryPlayLoadingSong(true);
+},{passive:true});
+
+const CUSTOM_DOCK_CHORUS='custom_dock_chorus.mp3';
+const BRYAN_REVEAL_TRACK='bryan_reveal_track.mp3';
+const bryanRevealAudio=new Audio(BRYAN_REVEAL_TRACK);
+bryanRevealAudio.preload='auto';
+bryanRevealAudio.volume=.84;
+let bryanRevealPlaying=false;
+async function playBryanRevealTrack(){
+ if(!musicOn)return;
+ try{
+  bryanRevealPlaying=true;
+  try{dockChorusAudio.pause();}catch(e){}
+  try{musicAudio.pause();}catch(e){}
+  try{if(master)master.gain.value=0;}catch(e){}
+  bryanRevealAudio.currentTime=0;bryanRevealAudio.volume=.84;
+  await bryanRevealAudio.play();
+  try{$('music').textContent='♫ BOAT BABY BRYAN';}catch(e){}
+ }catch(e){bryanRevealPlaying=false;}
+}
+function stopBryanRevealTrack(){
+ try{bryanRevealAudio.pause();bryanRevealAudio.currentTime=0;}catch(e){}
+ bryanRevealPlaying=false;
+ try{if(master)master.gain.value=.5;}catch(e){}
+}
+bryanRevealAudio.onended=()=>{bryanRevealPlaying=false;};
+
+const dockChorusAudio=new Audio(CUSTOM_DOCK_CHORUS);
+dockChorusAudio.loop=true;
+dockChorusAudio.preload='auto';
+dockChorusAudio.volume=.78;
+let dockChorusPlaying=false,victoryMixActive=false,victoryMoveDistance=0;
+const VICTORY_FADE_DISTANCE=520;
+let heatCutscenePending=false,heatDelayStarted=false,heatDelayTimer=null;
+function scheduleHeatCutsceneAfterVictory(){
+ if(!heatCutscenePending||heatDelayStarted)return;
+ heatDelayStarted=true;
+ toast='Job music finished. Catch your breath...';toastT=3;
+ heatDelayTimer=setTimeout(()=>{
+  heatDelayTimer=null;
+  if(!heatCutscenePending)return;
+  heatCutscenePending=false;heatDelayStarted=false;
+  startHeatCutscene();
+ },5000);
+}
+async function playDockChorus(){
+ if(!musicOn)return;
+ try{
+   victoryMixActive=true;victoryMoveDistance=0;dockChorusPlaying=true;
+   dockChorusAudio.loop=true;dockChorusAudio.volume=.78;dockChorusAudio.currentTime=0;
+   musicAudio.volume=0;
+   try{if(musicAudio.paused)await musicAudio.play();}catch(e){}
+   await dockChorusAudio.play();
+   try{$('music').textContent='♫ JOB COMPLETE TRACK';}catch(e){}
+ }catch(e){dockChorusPlaying=false;victoryMixActive=false;musicAudio.volume=.62;}
+}
+function updateVictoryCrossfade(moved){
+ if(!victoryMixActive||!musicOn||moved<=0)return;
+ victoryMoveDistance+=moved;const p=Math.max(0,Math.min(1,victoryMoveDistance/VICTORY_FADE_DISTANCE));
+ try{dockChorusAudio.volume=.78*(1-p)}catch(e){};try{musicAudio.volume=.62*p}catch(e){};
+ if(p>=1){victoryMixActive=false;dockChorusPlaying=false;try{dockChorusAudio.pause();dockChorusAudio.loop=true;dockChorusAudio.volume=.78}catch(e){};try{musicAudio.volume=.62}catch(e){};try{$('music').textContent='♫ SYNTHWAVE ON'}catch(e){};scheduleHeatCutsceneAfterVictory()}
+}
+async function pauseVictoryForCutscene(){if(!victoryMixActive)return;try{dockChorusAudio.pause()}catch(e){};try{musicAudio.pause()}catch(e){}}
+async function resumeVictoryAfterCutscene(){if(!victoryMixActive||!musicOn)return;const p=Math.max(0,Math.min(1,victoryMoveDistance/VICTORY_FADE_DISTANCE));try{dockChorusAudio.volume=.78*(1-p);await dockChorusAudio.play()}catch(e){};try{musicAudio.volume=.62*p;if(musicAudio.paused)await musicAudio.play()}catch(e){}}
+
+
+const musicAudio=new Audio(MUSIC_TRACK);
+musicAudio.loop=true;
+musicAudio.preload='auto';
+musicAudio.volume=.62;
+
+async function startActualMusic(){
+ try{
+  musicOn=true;
+  if(!victoryMixActive){musicAudio.volume=.62;if(musicAudio.paused){ musicAudio.currentTime=0; await musicAudio.play(); }$('music').textContent='♫ SYNTHWAVE ON';}
+  else await resumeVictoryAfterCutscene();
+ }catch(err){
+  // Some local Android viewers are stricter with Audio elements. Fall back to WebAudio.
+  try{ startMusic(); if(musicCtx && musicCtx.state==='suspended') await musicCtx.resume(); }catch(e){}
+ }
+}
+
+$('music').onclick=async()=>{
+ musicOn=!musicOn;
+ if(musicOn){
+  if(victoryMixActive){try{await resumeVictoryAfterCutscene();}catch(e){}}
+  else{ try{musicAudio.volume=.62;await musicAudio.play();}catch(e){ try{startMusic(); if(musicCtx) await musicCtx.resume();}catch(_){} } }
+  $('music').textContent=victoryMixActive?'♫ JOB COMPLETE TRACK':'♫ SYNTHWAVE ON';
+ }else{
+  musicAudio.pause();
+  try{dockChorusAudio.pause();}catch(e){}
+  try{loadingSongAudio.pause();}catch(e){}
+  $('music').textContent='♫ MUSIC OFF';
+ }
+};
+
+
+const cutVideo=$('cutVideo');
+let timeJumpTimer=null;
+function startPresentDay(){
+ $('timeJump').classList.remove('show');
+ $('controls').style.visibility='visible';$('music').style.display='block';
+ dockScene=0;player.x=420;player.y=674;player.dir=1;mode='game';
+ startActualMusic();notice="MARINER'S POINT • PRESENT DAY";noticeT=3;toast='No calls yet. Just another day on the dock.';toastT=4;last=performance.now();
+}
+function finishVideoCutscene(){
+ stopLoadingSong();
+ try{cutVideo.pause()}catch(e){}
+ $('videoCut').classList.remove('show');
+ $('controls').style.visibility='hidden';$('music').style.display='none';
+ dockScene=0;player.x=420;player.y=674;mode='timejump';
+ $('timeJump').classList.add('show');
+ if(timeJumpTimer)clearTimeout(timeJumpTimer);
+ timeJumpTimer=setTimeout(()=>{timeJumpTimer=null;startPresentDay()},2600);
+}
+
+
+const cutVideo3=$('cutVideo3');
+function startJob3DiscoveryCutscene(){
+ if(job3IntroPlayed)return;
+ job3IntroPlayed=true;call3Offered=true;currentCall=3;target=jobSpots[2];activeJob=false;deadline=0;mode='video3';
+ $('controls').style.visibility='hidden';$('inventoryBtn').style.display='none';$('music').style.display='none';$('videoCut3').classList.add('show');
+ try{musicAudio.pause()}catch(e){};try{dockChorusAudio.pause()}catch(e){};
+ try{cutVideo3.currentTime=0;cutVideo3.play().catch(()=>finishJob3DiscoveryCutscene())}catch(e){finishJob3DiscoveryCutscene()}
+}
+function finishJob3DiscoveryCutscene(){
+ try{cutVideo3.pause()}catch(e){};$('videoCut3').classList.remove('show');$('controls').style.visibility='visible';$('music').style.display='block';
+ currentCall=3;target=jobSpots[2];activeJob=true;deadline=0;mode='game';
+ saveGame();showJobBrief(3);
+}
+cutVideo3.onended=finishJob3DiscoveryCutscene;
+$('videoSkip3').onclick=finishJob3DiscoveryCutscene;
+async function beginNewGame(){
+ stopLoadingSong();
+ money=0;rep=0;goodJobs=0;goodReviews=0;badReviews=0;health=100;waterInv=0;redbullInv=0;tipsTotal=0;speedBoost=0;tipReviewMilestones=0;completedCalls=0;currentCall=1;beverageUnlocked=false;cartInfoSeen=false;call1Offered=false;call3Offered=false;job3IntroPlayed=false;waitingForCall2=false;call2WalkDistance=0;activeJob=false;target=null;dockScene=0;player.x=420;player.y=674;player.dir=1;
+ clearGameSave();
+ $('start').style.display='none';mode='video';$('controls').style.visibility='hidden';$('music').style.display='none';$('skip').style.display='none';$('videoCut').classList.add('show');
+ try{cutVideo.currentTime=0;await cutVideo.play()}catch(e){finishVideoCutscene()}
+}
+function restoreSafePosition(s){
+ const ps=s&&s.player?s.player:{};
+ call1Offered=!!(s&&s.call1Offered)||(+s?.completedCalls||0)>0;call3Offered=!!(s&&s.call3Offered);job3IntroPlayed=!!(s&&s.job3IntroPlayed)||(+s?.completedCalls||0)>=3;
+ if(s.checkpoint==='after_job1'){dockScene=1;player.x=Math.max(70,Math.min(1500,+ps.x||1235));player.y=670;waitingForCall2=true;call2WalkDistance=0;currentCall=1;beverageUnlocked=false;call1Offered=true;call3Offered=false;job3IntroPlayed=false}
+ else if(s.checkpoint==='job2_complete_pending_heat'){dockScene=2;player.x=420;player.y=670;currentCall=2;beverageUnlocked=false;call1Offered=true;call3Offered=false;job3IntroPlayed=false}
+ else if(s.checkpoint==='after_job2'){dockScene=2;player.x=Math.max(70,Math.min(1515,+ps.x||420));player.y=670;currentCall=2;beverageUnlocked=true;call1Offered=true;call3Offered=false;job3IntroPlayed=false}
+ else if(s.checkpoint==='job3_complete_pending_arch'){dockScene=3;player.x=Math.max(70,Math.min(1515,+ps.x||1180));player.y=670;currentCall=3;beverageUnlocked=true;call1Offered=true;call3Offered=true;job3IntroPlayed=true}
+ else if(s.checkpoint==='after_job3'){dockScene=3;player.x=Math.max(70,Math.min(1515,+ps.x||1180));player.y=670;currentCall=3;beverageUnlocked=true;call1Offered=true;call3Offered=true;job3IntroPlayed=true}
+ else{dockScene=0;player.x=420;player.y=674;currentCall=1;beverageUnlocked=false;call1Offered=false;call3Offered=false;job3IntroPlayed=false}
+ player.dir=+ps.dir||1;activeJob=false;target=null;deadline=0;
+}
+async function continueSavedGame(){
+ if(!loadedSave)return beginNewGame();
+ stopLoadingSong();$('start').style.display='none';$('controls').style.visibility='visible';$('music').style.display='block';
+ restoreSafePosition(loadedSave);
+ if(beverageUnlocked)$('inventoryBtn').style.display='block';else $('inventoryBtn').style.display='none';
+ if(loadedSave.checkpoint==='job2_complete_pending_heat'){mode='game';startHeatCutscene();return}
+ if(loadedSave.checkpoint==='job3_complete_pending_arch'){mode='arch';$('archNemesis').style.display='grid';playBryanRevealTrack();return}
+ mode='game';startActualMusic();notice='AUTOSAVE LOADED';noticeT=3;
+ toast=completedCalls===1?'Job #1 is saved. Walk about 10 steps for Call #2.':(completedCalls===2?'Job #2 is saved. Keep moving through the marina.':'Progress, inventory, reviews and cash restored.');toastT=6;last=performance.now();
+}
+$('startBtn').onclick=async()=>{if(loadedSave&&!confirm('Start a NEW GAME? This will erase the current autosave.'))return;await beginNewGame()};
+$('continueBtn').onclick=continueSavedGame;
+cutVideo.onended=finishVideoCutscene;
+$('videoSkip').onclick=finishVideoCutscene;
+$('skip').onclick=()=>{};
+
+function setupCall(n){
+ currentCall=n;
+ const c=clientCalls[n-1];
+ $('callNumber').textContent=c.number;
+ $('callTitle').textContent=c.title;
+ $('callText').textContent=c.text;
+}
+const jobBriefs={
+ 1:{number:'JOB 001',title:'WATER INTRUSION — FIND IT BEFORE YOU FEED IT',quotes:[
+   "Alright, first thing — don’t just start throwing parts at it. Figure out what’s actually wrong before you make the customer’s problem your problem.",
+   "Water in the boat doesn’t mean panic. Shut down what’s feeding it, find the leak, then get the damn water out.",
+   "Anybody can swap a pump. We’re gonna figure out why the boat is filling up first."
+  ],steps:['Shut the livewell system down.','Use the clue and diagnose where the water is coming from.','Clamp the loose hose and stop the leak.','Clear the bilge-pump intake.','Pump the bilge dry.']},
+ 2:{number:'JOB 002',title:'ANNUAL SERVICE — EASY MONEY IF YOU PAY ATTENTION',quotes:[
+   "This one’s easy money if you don’t overthink it. Oil, filter, plugs, lower unit — check everything twice and don’t create tomorrow’s comeback.",
+   "Annual service. Nothing glamorous. Do every little thing right and the motor keeps everybody happy. Skip one thing and guess who gets the phone call.",
+   "Take your time. A ten-minute shortcut has a funny way of becoming a two-hour warranty job."
+  ],steps:['Extract the engine oil and replace the oil filter.','Drain and refill the lower unit from the bottom up.','Replace the spark plugs without snapping anything expensive.','Replace the fuel filter.','Finish with corrosion protection and a final check.']},
+ 3:{number:'JOB 003',title:'SINKING BOAT — THIS ONE IS ALREADY TRYING TO BECOME A REEF',quotes:[
+   "This one’s already trying to become a reef. Stop the water first. Ask questions later.",
+   "Something stupid happened here. Find the clues, prove the electrical failure, and don’t fire the parts cannon.",
+   "If a boat is sinking, guessing gets expensive fast. We diagnose first — even while our shoes are getting wet."
+  ],steps:['Inspect the boat and find all five clues.','Check voltage at the bilge pump.','Trace the power feed instead of blindly replacing parts.','Test and reinstall the bilge-pump fuse.','Verify the float switch and pump actually run.']}
+};
+let briefJob=0;
+function showJobBrief(n){
+ const b=jobBriefs[n];if(!b)return;
+ briefJob=n;mode='brief';
+ $('jobBriefNumber').textContent=b.number;$('jobBriefTitle').textContent=b.title;
+ $('jobBriefQuote').textContent=b.quotes[Math.floor(Math.random()*b.quotes.length)];
+ $('jobBriefSteps').innerHTML=b.steps.map(x=>`<li>${x}</li>`).join('');
+ $('jobBrief').style.display='grid';
+}
+$('jobBriefStart').onclick=()=>{
+ const n=briefJob;$('jobBrief').style.display='none';briefJob=0;
+ if(musicOn&&!victoryMixActive)startActualMusic();
+ if(n===1)startMini();else if(n===2)startMini2();else if(n===3)startMini3();
+};
+
+$('take').onclick=()=>{
+ $('call').style.display='none';chooseTarget();activeJob=true;deadline=currentCall===1?95:(currentCall===2?85:0);mode='game';
+ notice=currentCall===1?'FIRST CLIENT — JOB IS WAITING ON DOCK 2':(currentCall===2?'SECOND CALL — JOB IS ON DOCK 3':'JOB ACCEPTED');noticeT=4;
+ if(currentCall===1){toast='Head RIGHT into the next dock section. The boat is already sitting at the service slip.';toastT=7}
+ if(currentCall===2){toast='Keep moving RIGHT. The annual-service boat is waiting on Dock 3.';toastT=7}
+};
+$('decline').onclick=()=>{
+ $('call').style.display='none';mode='game';activeJob=false;target=null;
+ if(currentCall===1){call1Offered=false;player.x=Math.min(player.x,1280);toast='First call declined. Walk back toward the end of Dock 1 if you change your mind.';toastT=5}
+ else if(currentCall===2){waitingForCall2=true;call2WalkDistance=0;toast='Second job declined. Walk around a bit and the phone will probably annoy you again.';toastT=6}
+ else{toast='No phone call for Job 3. You find that mess in person.';toastT=5}
+};
+$('rulesOk').onclick=()=>{$('rules').style.display='none';toast=`Find ${target.boat}. Look for the yellow wrench.`;toastT=6};
+$('tutorialOk').onclick=()=>{$('tutorial').style.display='none';mode='game';tutorialSeen=true};
+$('completeOk').onclick=()=>{
+ $('completion').style.display='none';activeJob=false;target=null;
+ if(currentCall===1){
+   mode='game';waitingForCall2=true;call2WalkDistance=0;
+   toast='Back on Dock 2. Walk it off — the completion track fades as Rick moves.';toastT=6;
+ }else if(currentCall===2){
+   mode='game';heatCutscenePending=true;heatDelayStarted=false;
+   toast='Walk it off. The completion track will fade as Rick moves.';toastT=5;
+   // If music is disabled/unavailable, there is nothing to fade, so just wait the requested five seconds.
+   if(!victoryMixActive)scheduleHeatCutsceneAfterVictory();
+ }else if(currentCall===3){
+   mode='arch';$('archNemesis').style.display='grid';playBryanRevealTrack();
+ }
+};
+$('archOk').onclick=async()=>{stopBryanRevealTrack();$('archNemesis').style.display='none';mode='game';notice='ARCH NEMESIS: BOAT BABY BRYAN';noticeT=4;toast='Good review earned. Keep moving down the dock.';toastT=6;last=performance.now();saveGame('after_job3');if(victoryMixActive)await resumeVictoryAfterCutscene();else await startActualMusic()};
+$('restartMiss').onclick=()=>location.reload();
+
+function showCall(n=currentCall){setupCall(n);mode='call';$('skip').style.display='none';$('call').style.display='grid';sfx('phone')}
+
+function dialogueRect(row,frame){const xs=[205,575,935,1295],y=row==='rick'?20:440;return{sx:xs[frame],sy:y,sw:frame===3?365:355,sh:368}}
+function rr(x,y,w,h,r,fill=true){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();if(fill)ctx.fill()}
+function wrap(s,x,y,max,lh){let line='';for(const word of s.split(' ')){let test=line+word+' ';if(ctx.measureText(test).width>max&&line){ctx.fillText(line,x,y);line=word+' ';y+=lh}else line=test}ctx.fillText(line,x,y)}
+
+function wrapLines(text,maxWidth,maxLines=99){
+ const words=String(text).split(/\s+/);const lines=[];let line='';
+ for(const word of words){
+  const test=line?line+' '+word:word;
+  if(ctx.measureText(test).width>maxWidth && line){
+   lines.push(line);line=word;
+   if(lines.length>=maxLines)break;
+  }else line=test;
+ }
+ if(lines.length<maxLines && line)lines.push(line);
+ if(lines.length===maxLines){
+  let last=lines[maxLines-1];
+  while(ctx.measureText(last+'…').width>maxWidth && last.length>1)last=last.slice(0,-1);
+  lines[maxLines-1]=last+(last!==lines[maxLines-1]?'…':'');
+ }
+ return lines;
+}
+function drawWrapped(text,x,y,maxWidth,lineHeight,maxLines=99,align='left'){
+ const lines=wrapLines(text,maxWidth,maxLines);
+ ctx.textAlign=align;
+ for(let i=0;i<lines.length;i++)ctx.fillText(lines[i],x,y+i*lineHeight);
+ ctx.textAlign='left';
+ return lines.length;
+}
+
+function drawDialogue(who,line,row){
+ drawMarinaBase(false);
+ ctx.fillStyle='#02070c9b';ctx.fillRect(0,0,W,H);
+
+ const sh=imgs.dialogueSheet;
+ const local=row==='kyle'?Math.max(0,cutT-2.2):Math.max(0,cutT-5.2);
+ const seq=[0,1,2,1,0,1,2,3,1];
+ const fr=seq[Math.floor(local*6.4)%seq.length];
+ const r=dialogueRect(row,fr);
+
+ const px=row==='kyle'?70:895,py=42,pw=635,ph=525;
+ ctx.fillStyle='#000b';rr(px-12,py-12,pw+24,ph+24,20);
+ ctx.strokeStyle=row==='kyle'?'#48ccff':'#ffd052';ctx.lineWidth=4;ctx.strokeRect(px,py,pw,ph);
+
+ if(sh.complete){
+   ctx.save();ctx.beginPath();ctx.rect(px,py,pw,ph);ctx.clip();
+   ctx.drawImage(sh,r.sx,r.sy,r.sw,r.sh,px-5,py-10,pw+10,ph+22);
+   ctx.restore();
+ }
+
+ const bx=55,by=585,bw=1490,bh=260;
+ ctx.fillStyle='#07131ef4';rr(bx,by,bw,bh,18);
+ ctx.strokeStyle='#54e7ff';ctx.lineWidth=3;ctx.stroke();
+
+ ctx.fillStyle=row==='kyle'?'#4cd2ff':'#ffd45c';
+ ctx.font='1000 30px system-ui';
+ ctx.fillText(who.toUpperCase(),95,632);
+
+ ctx.fillStyle='#fff';ctx.font='800 38px system-ui';
+ drawWrapped(line,95,692,1410,48,3,'left');
+}
+function drawLaugh(){
+ drawMarinaBase(false);ctx.fillStyle='#02070c9c';ctx.fillRect(0,0,W,H);
+ const a=imgs.kyleLaugh,b=imgs.rickLaugh,w=610,h=440,y=85,wob=Math.sin((cutT-8.25)*22)*5;
+ for(const p of [{im:a,x:110+wob,c:'#49ceff',name:'DIESEL KYLE'},{im:b,x:880-wob,c:'#ffd052',name:'BOAT DADDY RICK'}]){
+  ctx.fillStyle='#000b';rr(p.x-10,y-10,w+20,h+20,20);ctx.strokeStyle=p.c;ctx.lineWidth=4;ctx.strokeRect(p.x,y,w,h);
+  if(p.im.complete)ctx.drawImage(p.im,p.x,y,w,h);
+  ctx.fillStyle='#06101de8';ctx.fillRect(p.x,y+h-58,w,58);ctx.fillStyle=p.c;ctx.font='1000 21px system-ui';ctx.fillText(p.name,p.x+18,y+h-21)
+ }
+ ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='1000 60px system-ui';ctx.strokeStyle='#000';ctx.lineWidth=10;ctx.strokeText('HAHAHAHAHAHA!',800,650);ctx.fillText('HAHAHAHAHAHA!',800,650);ctx.fillStyle='#6eefff';ctx.font='900 20px system-ui';ctx.fillText('Both of them completely lose it.',800,691);ctx.textAlign='left'
+}
+function updateCut(dt){
+ cutT+=dt;
+ if(cutT<2.2){player.x=420+cutT*100;kyle.x=1030-cutT*100;player.dir=1;kyle.dir=-1;player.state='walk'}
+ else if(cutT<5.2){player.x=640;kyle.x=810;player.state='idle'}
+ else if(cutT<8.25){player.x=640;kyle.x=810;player.state='idle'}
+ else if(cutT<10.35){if(!laughPlayed){laughPlayed=true;laughSfx()}}
+ else if(cutT<12.4){player.x-=56*dt;kyle.x+=70*dt;player.dir=-1;kyle.dir=1;player.state='walk'}
+ else if(cutT<14.2){player.state='idle'}
+ else showCall()
+}
+
+function inGap(x,y){return x>910&&x<1030&&y>705}
+function updateGame(dt){
+ if(activeJob&&deadline>0){deadline-=dt;if(deadline<=0){badReviews++;activeJob=false;mode='missed';saveGame();$('missed').style.display='grid';sfx('splash');return}}
+
+ let mx=(input.r?1:0)-(input.l?1:0),my=(input.d?1:0)-(input.u?1:0);if(mx&&my){mx*=.707;my*=.707}
+ const sp=(input.run?330:220)*(1+speedBoost/100);
+ const prevX=player.x,prevY=player.y;
+ player.x+=mx*sp*dt;player.y+=my*sp*.54*dt;
+ // Walk off the right/left edge to physically enter the neighboring dock screen.
+ if(player.y>620 && player.x>1538 && mx>0){
+   if(dockScene===0 && activeJob && target && target.scene>=1){dockScene=1;player.x=72;player.y=670;notice='DOCK 2 • EAST SERVICE';noticeT=2.5;toast='Job #1 is waiting farther down this dock.';toastT=4}
+   else if(dockScene===1 && activeJob && target && target.scene>=2){dockScene=2;player.x=72;player.y=670;notice='DOCK 3 • MARINA WALK';noticeT=3;toast='Job #2 is at the service finger ahead.';toastT=5}
+   else if(dockScene===2 && beverageUnlocked && completedCalls>=2){dockScene=3;player.x=72;player.y=670;notice='DOCK 4 • EMERGENCY DOCK';noticeT=3;toast='No call this time. Just keep walking.';toastT=5}
+   else player.x=1538;
+ }
+ if(player.y>620 && player.x<58 && mx<0 && dockScene>0){dockScene--;player.x=1515;player.y=670;notice=dockScene===0?'DOCK 1 • MAIN MARINA':(dockScene===1?'DOCK 2 • EAST SERVICE':'DOCK 3 • MARINA WALK');noticeT=2}
+ player.x=Math.max(55,Math.min(1545,player.x));player.y=Math.max(420,Math.min(805,player.y));if(mx)player.dir=Math.sign(mx);player.state=(mx||my)?(input.run?'run':'walk'):'idle';
+ const moved=Math.hypot(player.x-prevX,player.y-prevY);
+ updateVictoryCrossfade(moved);
+ // Dock 1 is the player's unforced movement/jump playground. The first phone call waits at the far end.
+ if(completedCalls===0 && dockScene===0 && !activeJob && !call1Offered && player.x>1370 && player.y>620){
+   call1Offered=true;mode='call';showCall(1);return;
+ }
+ if(waitingForCall2 && moved>0){
+   call2WalkDistance+=moved;
+   if(call2WalkDistance>=CALL2_WALK_DISTANCE){
+     waitingForCall2=false;call2WalkDistance=CALL2_WALK_DISTANCE;mode='call';showCall(2);return;
+   }
+ }
+ // Job #3 is discovered in person. Walking in front of the sinking-boat slip starts the cinematic automatically.
+ if(beverageUnlocked && completedCalls>=2 && dockScene===3 && !activeJob && !call3Offered && player.x>1040 && player.y>620){
+   startJob3DiscoveryCutscene();return;
+ }
+ if(input.jump&&player.z<=0){player.vz=425;sfx('jump')}
+ if(player.z>0||player.vz>0){player.z+=player.vz*dt;player.vz-=980*dt;if(player.z<=0){player.z=0;player.vz=0}}
+
+ // Dock 1 intentionally has no movement tutorial pop-up. Players learn walking and jumping by playing.
+
+ // Teach the cart after Rick actually enters Screen 3. The stand is visible farther ahead, not piled beside Job #2.
+ if(beverageUnlocked&&dockScene===2&&!cartInfoSeen&&player.x>120&&player.y>620){
+   cartInfoSeen=true;saveGame();mode='cartinfo';$('cartInfo').style.display='grid';player.state='idle';
+   input.l=input.r=input.u=input.d=input.jump=false;
+   return;
+ }
+ if(!pointOnNewDock(player.x,player.y)&&player.z<20){health=Math.max(10,health-10);notice='SPLASH! THE SHARK APPROVES.';noticeT=2.2;sfx('splash');player.x=760;player.y=670;player.z=0}
+
+ // Talk is a separate interaction.
+ if(input.talk&&!input.talkLatch){
+  input.talkLatch=true;
+  let nearest=null,d=999;
+  for(const n of npcDefs){if((n.scene??0)!==dockScene)continue;const nd=Math.hypot(n.x-player.x,(n.y-player.y)*.9);if(nd<145&&nd<d){nearest=n;d=nd}}
+  if(nearest){
+   speech=talkLines[Math.floor(Math.random()*talkLines.length)];speechNpc=nearest.name;speechT=4.2;sfx('talk');
+  }else{toast='Nobody close enough to insult. Walk up to someone first.';toastT=2.8}
+ }else if(!input.talk)input.talkLatch=false;
+
+ if(input.action&&!input.actionLatch){
+  input.actionLatch=true;
+  if(beverageUnlocked&&nearBeverageCart()){openBeverageShop();return}
+  if(activeJob&&target&&target.scene===dockScene&&Math.hypot(target.x-player.x,(target.y-player.y)*.8)<155){showJobBrief(currentCall);return}
+  let nearest=null,d=999;
+  for(const n of npcDefs){if((n.scene??0)!==dockScene)continue;const nd=Math.hypot(n.x-player.x,(n.y-player.y)*.9);if(nd<120&&nd<d){nearest=n;d=nd}}
+  if(nearest){nearest.x+=player.dir*85;nearest.y+=24;nearest.stun=.65;sfx('push');toast='Rick: “Coming through.”';toastT=1.6}
+ }else if(!input.action)input.actionLatch=false;
+
+ updateNPCs(dt)
+}
+function updateNPCs(dt){
+ for(const n of npcDefs){
+  if((n.scene??0)!==dockScene)continue;
+  if(n.stun>0){n.stun-=dt;continue}
+  n.x+=n.dir*n.speed*dt;n.y+=Math.sin(time*.8+n.x*.01)*7*dt;
+  if(n.x<155)n.dir=1;if(n.x>1490)n.dir=-1;
+  if(inGap(n.x,n.y)){n.x=n.dir>0?gap.x2+55:gap.x1-55;n.y=610;sfx('splash');notice='CLUMSY BOATER: 0  •  SHARK: 1';noticeT=1.5}
+ }
+}
+
+
+
+let annualStage=0,annualClock=150,annualMistakeCount=0,annualExtractor=0;
+let annualFilterRemove=0,annualFilterTight=0,annualPendingFilter=false,annualDrainTop=false,annualDrainBottom=false;
+let annualCatch=0,annualPanX=38,annualElapsed=0,annualWrongTop=false,annualGearPumps=0,annualGearTop=false,annualGearBottom=false;
+let annualPlugIndex=0,annualPlugPhase='remove',annualPlugTaps=0,annualPlugPending=false,annualFuelDone=false,annualSpray=0,annualSpraying=false;
+let annualTraceState=0,annualPointerDown=false,annualSwipeStartX=0;
+
+function startMini(){mode='mini';attempt=1;resetMini();$('jobMini').style.display='grid'}
+function startMini2(){mode='mini2';attempt=1;resetMini2();$('jobMini2').style.display='grid'}
+function resetMini2(){
+ annualStage=0;annualClock=150;annualMistakeCount=0;annualExtractor=0;annualFilterRemove=0;annualFilterTight=0;annualPendingFilter=false;
+ annualDrainTop=false;annualDrainBottom=false;annualCatch=0;annualPanX=38;annualElapsed=0;annualWrongTop=false;annualGearPumps=0;annualGearTop=false;annualGearBottom=false;
+ annualPlugIndex=0;annualPlugPhase='remove';annualPlugTaps=0;annualPlugPending=false;annualFuelDone=false;annualSpray=0;annualSpraying=false;
+ $('attemptTxt2').textContent=`${attempt} / 3`;renderAnnual();
+}
+function annualPct(){return [4,13,22,30,40,48,57,65,80,88,96,100][Math.min(11,annualStage)]||0}
+function annualMistake(msg){
+ annualMistakeCount++;sfx('push');$('annualMistakes').textContent=`${annualMistakeCount} / 3`;toast=msg;toastT=3.2;
+ if(annualMistakeCount>=3){failAttempt();return true}return false;
+}
+function annualAssets(main,tool,mainLabel,toolLabel){
+ return `<div class="annualAsset"><img src="${EXTRA_ASSETS[main]}"><small>${mainLabel}</small></div><div class="annualAsset"><img src="${EXTRA_ASSETS[tool]}"><small>${toolLabel}</small></div>`;
+}
+function setAnnualText(t){$('miniText2').innerHTML=t}
+function renderAnnual(){
+ if(mode!=='mini2')return;
+ $('miniTime2').textContent=Math.max(0,annualClock).toFixed(1);$('annualMistakes').textContent=`${annualMistakeCount} / 3`;$('progressFill2').style.width=annualPct()+'%';
+ const g=$('annualAssetGrid'),c=$('annualControls');
+ if(annualStage===0){g.innerHTML=annualAssets('powerhead','extractor','4-stroke powerhead','Engine oil extractor');setAnnualText(`<b>ENGINE OIL:</b> Tap the extractor pump 5 times.`);c.innerHTML=`<button class="annualBig" id="annualExtractorBtn">PUMP EXTRACTOR (${annualExtractor}/5)</button>`;$('annualExtractorBtn').onclick=()=>{annualExtractor++;if(annualExtractor>=5){annualStage=1;sfx('cash')}renderAnnual()};}
+ else if(annualStage===1){g.innerHTML=annualAssets('filter','wrench','Engine oil filter','Band-style filter wrench');setAnnualText(`<b>OIL FILTER:</b> Use the wrench, then trace the U-shaped turn 5 times to remove the filter.`);c.innerHTML=`<button class="annualBig" id="wrenchBtn">CLOSE WRENCH ON FILTER</button><div id="annualTrace"><div class="uGuide"></div><div class="traceMsg">Trace from upper-left → around the bottom → upper-right. ${annualFilterRemove}/5 turns</div></div>`;$('wrenchBtn').onclick=()=>{toast='Wrench locked onto the filter.';toastT=2};bindAnnualTrace();}
+ else if(annualStage===2){g.innerHTML=annualAssets('filter','wrench','New engine oil filter','Filter wrench');setAnnualText(`<b>INSTALL FILTER:</b> Swipe the opposite direction 5 times. Do NOT over-shoot the last turn.`);c.innerHTML=`<div id="annualSwipe">SWIPE RIGHT → LEFT<br><small>${annualFilterTight}/5 turns${annualPendingFilter?' — STOP!':''}</small></div>`;bindAnnualSwipe();}
+ else if(annualStage===3){g.innerHTML=annualAssets('lower','screwdriver','Outboard lower unit','Flathead screwdriver');setAnnualText(`<b>GEAR OIL:</b> Tap the bottom drain screw and top vent screw.`);c.innerHTML=`<div class="annualChoice"><button id="drainTop" class="${annualDrainTop?'annualGood':''}">${annualDrainTop?'✅ TOP VENT OUT':'REMOVE TOP VENT'}</button><button id="drainBottom" class="${annualDrainBottom?'annualGood':''}">${annualDrainBottom?'✅ BOTTOM DRAIN OUT':'REMOVE BOTTOM DRAIN'}</button></div>`;$('drainTop').onclick=()=>{annualDrainTop=true;checkAnnualDrain()};$('drainBottom').onclick=()=>{annualDrainBottom=true;checkAnnualDrain()};}
+ else if(annualStage===4){g.innerHTML=annualAssets('lower','screwdriver','Gearcase draining','Keep the pan under the oil');setAnnualText(`<b>CATCH THE OIL:</b> Drag the pan left/right. Wind is moving the stream.`);c.innerHTML=`<div id="annualOilScene"><img src="${EXTRA_ASSETS.lower}"><div id="annualOilStream"></div><div id="annualPan"></div><div id="annualWind">💨 WIND</div></div><div class="annualProgress"><i id="annualCatchBar" style="width:${annualCatch}%"></i></div><div style="text-align:center" id="annualCatchText">${Math.round(annualCatch)}% caught</div>`;bindAnnualPan();}
+ else if(annualStage===5){g.innerHTML=annualAssets('lower','gearPump','Empty gearcase','Gear-oil pump');setAnnualText(`<b>REFILL:</b> Which hole gets the gear-oil pump hose?`);c.innerHTML=`<div class="annualChoice"><button class="annualBad" id="gearTopPick">TOP VENT</button><button class="annualGood" id="gearBottomPick">BOTTOM FILL</button></div><div id="gearLesson" style="margin-top:8px;color:#b8cad3"></div>`;$('gearTopPick').onclick=()=>{annualWrongTop=true;$('gearLesson').innerHTML='<b>No.</b> Try the other hole.'};$('gearBottomPick').onclick=()=>{if(annualWrongTop){$('gearLesson').innerHTML='<b>Why bottom?</b> Filling from the bottom pushes air upward and out the open top vent so the gearcase fills solid instead of trapping air.';setTimeout(()=>{annualStage=6;renderAnnual()},1300)}else{annualStage=6;renderAnnual()}};}
+ else if(annualStage===6){g.innerHTML=annualAssets('lower','gearPump','Lower unit','Pump connected to bottom fill');setAnnualText(`<b>PUMP GEAR OIL:</b> Pump through the bottom until oil reaches the top vent.`);c.innerHTML=`<button class="annualBig" id="gearPumpBtn">PUMP GEAR OIL (${annualGearPumps}/6)</button><div class="annualProgress"><i style="width:${annualGearPumps/6*100}%"></i></div>`;$('gearPumpBtn').onclick=()=>{annualGearPumps++;if(annualGearPumps>=6){annualStage=7;sfx('cash')}renderAnnual()};}
+ else if(annualStage===7){g.innerHTML=annualAssets('lower','screwdriver','Full gearcase','Reinstall both screws');setAnnualText(`<b>BUTTON IT UP:</b> Tap each hole to install its screw.`);c.innerHTML=`<div class="annualChoice"><button id="gearTopHole" class="${annualGearTop?'annualGood':''}">${annualGearTop?'✅ TOP INSTALLED':'INSTALL TOP SCREW'}</button><button id="gearBottomHole" class="${annualGearBottom?'annualGood':''}">${annualGearBottom?'✅ BOTTOM INSTALLED':'INSTALL BOTTOM SCREW'}</button></div>`;$('gearTopHole').onclick=()=>{annualGearTop=true;checkGearInstall()};$('gearBottomHole').onclick=()=>{annualGearBottom=true;checkGearInstall()};}
+ else if(annualStage===8){g.innerHTML=annualAssets('sparkPlug','sparkTool','Spark plug','Ratchet + 5/8 spark-plug socket');setAnnualText(`<b>SPARK PLUGS:</b> Each plug takes 3 taps out and 3 taps in. Over-tap installation and it snaps.`);let s='';for(let i=0;i<4;i++){const done=i<annualPlugIndex,active=i===annualPlugIndex;const txt=done?'DONE':active?`${annualPlugPhase.toUpperCase()} ${annualPlugTaps}/3${annualPlugPending?' — STOP':''}`:'WAIT';s+=`<button data-plug="${i}" class="${done?'annualGood':''}"><img src="${EXTRA_ASSETS.sparkPlug}">PLUG ${i+1}<br><small>${txt}</small></button>`}c.innerHTML=`<div class="annualPlugGrid">${s}</div>`;c.querySelectorAll('[data-plug]').forEach(b=>b.onclick=()=>annualTapPlug(+b.dataset.plug));}
+ else if(annualStage===9){g.innerHTML=annualAssets('fuel','powerhead','Fuel filter','4-stroke powerhead');setAnnualText(`<b>FUEL FILTER:</b> Tap to replace it.`);c.innerHTML=`<button class="annualBig" id="fuelFilterBtn">REPLACE FUEL FILTER</button>`;$('fuelFilterBtn').onclick=()=>{annualFuelDone=true;annualStage=10;sfx('cash');renderAnnual()};}
+ else if(annualStage===10){g.innerHTML=annualAssets('powerhead','spray','Powerhead','Marine anti-corrosion spray');setAnnualText(`<b>PROTECT IT:</b> Tap and HOLD to spray anticorrosive over the powerhead.`);c.innerHTML=`<button class="annualBig annualGood" id="sprayBtn">HOLD TO SPRAY</button><div class="annualProgress"><i id="sprayBar" style="width:${annualSpray}%"></i></div><div style="text-align:center" id="sprayPct">${Math.round(annualSpray)}% coverage</div>`;const b=$('sprayBtn');b.onpointerdown=e=>{e.preventDefault();annualSpraying=true};for(const ev of ['pointerup','pointercancel','pointerleave'])b.addEventListener(ev,()=>annualSpraying=false);}
+ else if(annualStage===11){finishJob()}
+}
+function checkAnnualDrain(){if(annualDrainTop&&annualDrainBottom){annualStage=4;annualCatch=0;renderAnnual()}else renderAnnual()}
+function checkGearInstall(){if(annualGearTop&&annualGearBottom){annualStage=8;renderAnnual()}else renderAnnual()}
+function bindAnnualTrace(){
+ const pad=$('annualTrace');if(!pad)return;annualTraceState=0;annualPointerDown=false;
+ const pt=e=>{const r=pad.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height}};
+ pad.onpointerdown=e=>{annualPointerDown=true;annualTraceState=0;pad.setPointerCapture?.(e.pointerId);const p=pt(e);if(p.x<.42&&p.y<.45)annualTraceState=1};
+ pad.onpointermove=e=>{if(!annualPointerDown)return;const p=pt(e);if(annualTraceState===1&&p.y>.62&&p.x<.55)annualTraceState=2;else if(annualTraceState===2&&p.y>.62&&p.x>.48)annualTraceState=3;else if(annualTraceState===3&&p.x>.60&&p.y<.45){annualPointerDown=false;annualFilterRemove++;if(annualFilterRemove>=5)annualStage=2;sfx('cash');renderAnnual()}};
+ pad.onpointerup=()=>annualPointerDown=false;pad.onpointercancel=()=>annualPointerDown=false;
+}
+function bindAnnualSwipe(){
+ const p=$('annualSwipe');if(!p)return;
+ p.onpointerdown=e=>{annualSwipeStartX=e.clientX;p.setPointerCapture?.(e.pointerId)};
+ p.onpointerup=e=>{const dx=e.clientX-annualSwipeStartX;if(dx>-65)return;if(annualPendingFilter){annualPendingFilter=false;annualFilterTight=0;annualMistake('Over-tightened the filter. Tightening step reset.');renderAnnual();return}annualFilterTight++;if(annualFilterTight>=5){annualPendingFilter=true;renderAnnual();setTimeout(()=>{if(mode==='mini2'&&annualStage===2&&annualPendingFilter){annualPendingFilter=false;annualStage=3;sfx('cash');renderAnnual()}},850)}else renderAnnual()};
+}
+function bindAnnualPan(){
+ const scene=$('annualOilScene'),pan=$('annualPan');if(!scene||!pan)return;let drag=false;
+ const move=e=>{if(!drag)return;const r=scene.getBoundingClientRect();annualPanX=Math.max(3,Math.min(80,((e.clientX-r.left)/r.width)*100-8));pan.style.left=annualPanX+'%'};
+ pan.onpointerdown=e=>{drag=true;pan.setPointerCapture?.(e.pointerId);move(e)};pan.onpointermove=move;pan.onpointerup=()=>drag=false;pan.onpointercancel=()=>drag=false;
+}
+function annualTapPlug(i){
+ if(i!==annualPlugIndex)return;
+ if(annualPlugPhase==='remove'){annualPlugTaps++;if(annualPlugTaps>=3){annualPlugPhase='install';annualPlugTaps=0;toast=`Plug ${i+1} removed. Install the new one.`;toastT=2}renderAnnual();return}
+ if(annualPlugPending){annualPlugPending=false;annualPlugTaps=0;annualMistake(`SNAP! Plug ${i+1} broke from over-tapping. Redo that plug.`);renderAnnual();return}
+ annualPlugTaps++;
+ if(annualPlugTaps>=3){annualPlugPending=true;renderAnnual();setTimeout(()=>{if(mode==='mini2'&&annualStage===8&&annualPlugPending){annualPlugPending=false;annualPlugIndex++;annualPlugPhase='remove';annualPlugTaps=0;if(annualPlugIndex>=4)annualStage=9;sfx('cash');renderAnnual()}},700)}else renderAnnual();
+}
+function updateMini2(dt){
+ annualClock-=dt;annualElapsed+=dt;$('miniTime2').textContent=Math.max(0,annualClock).toFixed(1);if(annualClock<=0){failAttempt();return}
+ if(annualStage===4){const stream=63+Math.sin(annualElapsed*2.4)*13+Math.sin(annualElapsed*.91)*4;const el=$('annualOilStream');if(el)el.style.left=stream+'%';const wind=$('annualWind');if(wind)wind.textContent=Math.cos(annualElapsed*2.4)>=0?'💨 WIND: RIGHT ➜':'💨 WIND: ⬅ LEFT';const caught=Math.abs((annualPanX+7)-stream)<10;annualCatch=Math.max(0,Math.min(100,annualCatch+(caught?dt*24:-dt*4)));const bar=$('annualCatchBar'),txt=$('annualCatchText');if(bar)bar.style.width=annualCatch+'%';if(txt)txt.textContent=`${Math.round(annualCatch)}% caught ${caught?'✅':'— MOVE PAN'}`;if(annualCatch>=100){annualStage=5;sfx('cash');renderAnnual()}}
+ if(annualStage===10&&annualSpraying){annualSpray=Math.min(100,annualSpray+dt*34);const b=$('sprayBar'),t=$('sprayPct');if(b)b.style.width=annualSpray+'%';if(t)t.textContent=`${Math.round(annualSpray)}% coverage`;if(annualSpray>=100){annualSpraying=false;annualStage=11;renderAnnual()}}
+}
+
+
+
+// ---------- CALL #3: SINKING-BOAT DIAGNOSTIC ----------
+let diag3Clock=70,diag3Stage=0,diag3CluesFound=new Set(),diag3Water=.34,diag3FuseInstallTaps=0,diag3FuseTested=false;
+function hideDiag3ScrollHint(){const h=$('diag3ScrollHint');if(h)h.style.display='none'}
+function showDiag3ScrollHint(){
+ requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+  const h=$('diag3ScrollHint');if(!h)return;
+  const panel=diag3Stage===1?$('diag3Test'):(diag3Stage===2?$('diag3Power'):$('diag3FusePanel'));
+  if(!panel){h.style.display='none';return}
+  const r=panel.getBoundingClientRect();
+  const more=r.top>window.innerHeight-92 || r.bottom>window.innerHeight-18;
+  h.style.display=more?'block':'none';
+ })})
+}
+(()=>{const c=$('jobMini3')?.querySelector('.card');if(c)c.addEventListener('scroll',()=>{if(c.scrollTop>8)hideDiag3ScrollHint()},{passive:true})})();
+function startMini3(){mode='mini3';attempt=1;resetMini3();$('jobMini3').style.display='grid'}
+function resetMini3(){
+ diag3Clock=70;diag3Stage=0;diag3CluesFound=new Set();diag3Water=.34;diag3FuseInstallTaps=0;diag3FuseTested=false;hideDiag3ScrollHint();try{$('jobMini3').querySelector('.card').scrollTop=0}catch(e){};
+ $('attemptTxt3').textContent=`${attempt} / 3`;$('miniTime3').textContent='70.0';$('diag3Progress').style.width='0%';$('diag3ClueCount').textContent='0 / 5';
+ $('diag3Text').innerHTML='<b>INVESTIGATE:</b> Find what Boat Baby Bryan left behind. Wrong taps cost time while the water keeps climbing.';
+ $('diag3Test').style.display='none';$('diag3Power').style.display='none';$('diag3FusePanel').style.display='none';
+ for(const b of document.querySelectorAll('.diag3Clue')){b.classList.remove('found');b.disabled=false}
+ for(const b of document.querySelectorAll('.diag3Decoy')){b.classList.remove('done');b.disabled=false}
+ $('diag3TestFuse').disabled=false;$('diag3InstallFuse').disabled=true;$('diag3TestFloat').disabled=true;
+ $('diag3InstallFuse').textContent='REINSTALL GOOD FUSE (0/2)';$('diag3FuseTitle').textContent='EMPTY BILGE FUSE HOLDER + LOOSE FUSE';
+ $('diag3FuseText').textContent='The battery feed is 12.6 V. Bryan pulled the bilge-pump fuse and dropped it on the deck right beside the empty holder.';
+ $('diag3BoatArt').src=DIAG3_SINKING_BOAT;updateDiag3UI();
+}
+function penalizeDiag3(msg,waterHit=.055,timeHit=4){diag3Water=Math.min(.96,diag3Water+waterHit);diag3Clock=Math.max(0,diag3Clock-timeHit);$('diag3Text').innerHTML=`<b>NOPE:</b> ${msg} <span style="color:#ffb0a8">Water keeps rising.</span>`;sfx('splash');updateDiag3UI()}
+const diag3ClueText={
+ prints:'Tiny wet footprints cross the deck toward the electrical area. Baby-sized. Of course.',
+ binky:'A binky is sitting in the flooded cockpit. Bryan was definitely here.',
+ diaper:'A used diaper with a wrench logo. That little stinker left his calling card.',
+ holder:'The inline bilge-pump fuse holder is OPEN and completely EMPTY.',
+ fuse:'A blue blade fuse is lying on the deck only a few inches from the empty holder. It does not look blown.'
+};
+for(const b of document.querySelectorAll('.diag3Clue'))b.onclick=()=>{
+ if(mode!=='mini3'||diag3Stage!==0||b.classList.contains('found'))return;
+ const clue=b.dataset.clue;diag3CluesFound.add(clue);b.classList.add('found');b.disabled=true;sfx('cash');
+ $('diag3ClueCount').textContent=`${diag3CluesFound.size} / 5`;$('diag3Text').innerHTML=`<b>CLUE:</b> ${diag3ClueText[clue]}`;
+ if(diag3CluesFound.size>=5){diag3Stage=1;$('diag3Test').style.display='block';$('diag3Text').innerHTML='<b>ALL FIVE CLUES FOUND:</b> Bryan was here, the fuse holder is empty, and a fuse is on the deck. Still prove the circuit failure before touching parts.';showDiag3ScrollHint()}
+ updateDiag3UI();
+};
+for(const b of document.querySelectorAll('.diag3Decoy'))b.onclick=()=>{
+ if(mode!=='mini3'||diag3Stage!==0||b.classList.contains('done'))return;
+ b.classList.add('done');b.disabled=true;
+ const lines={rope:'That is just dock rope. Not everything on a boat is evidence, detective.',bottle:'Just a bottle. Bryan is gross, but this one is innocent.',glasses:'Sunglasses. Unless Bryan suddenly needs readers, keep looking.'};
+ penalizeDiag3(lines[b.dataset.decoy]||'Not a clue.',.025,2);
+};
+for(const b of document.querySelectorAll('#diag3Test .answers button'))b.onclick=()=>{
+ if(mode!=='mini3'||diag3Stage!==1)return;
+ if(b.dataset.test==='voltage'){
+   diag3Stage=2;$('diag3Test').style.display='none';$('diag3Power').style.display='block';$('diag3Text').innerHTML='<b>METER:</b> 0.0 V at the bilge pump while the float switch is calling for it. The pump is not proven bad — trace the power.';sfx('cash');showDiag3ScrollHint();
+ }else penalizeDiag3(b.dataset.test==='parts'?'Parts cannon denied. With 0 V not yet checked, replacing the pump is guessing.':'The battery starts the boat fine. Replacing it before checking the circuit wastes precious time.');
+ updateDiag3UI();
+};
+for(const b of document.querySelectorAll('#diag3Power .answers button'))b.onclick=()=>{
+ if(mode!=='mini3'||diag3Stage!==2)return;
+ if(b.dataset.power==='battery'){
+  diag3Stage=3;$('diag3Power').style.display='none';$('diag3FusePanel').style.display='block';$('diag3Text').innerHTML='<b>POWER FEED:</b> 12.6 V at the battery/feed. Now the empty fuse holder and the loose fuse make perfect sense. Bryan pulled it.';sfx('cash');showDiag3ScrollHint();
+ }else penalizeDiag3(b.dataset.power==='jump'?'Do not bypass the circuit while the boat is filling. Trace the open circuit first.':'You already have a pump that has not been proven bad. Stop shopping and diagnose it.');
+ updateDiag3UI();
+};
+$('diag3TestFuse').onclick=()=>{
+ if(mode!=='mini3'||diag3Stage!==3)return;
+ diag3FuseTested=true;diag3Stage=4;$('diag3TestFuse').disabled=true;$('diag3InstallFuse').disabled=false;
+ $('diag3FuseTitle').textContent='FUSE TEST: GOOD';$('diag3FuseText').innerHTML='<b>Continuity passes.</b> The fuse is not blown. Somebody intentionally removed a perfectly good bilge-pump fuse. Gee, wonder who.';$('diag3Text').innerHTML='<b>GOOD FUSE:</b> Reinstall the fuse Bryan pulled.';sfx('cash');updateDiag3UI();
+};
+$('diag3InstallFuse').onclick=()=>{
+ if(mode!=='mini3'||diag3Stage!==4)return;
+ diag3FuseInstallTaps++;$('diag3InstallFuse').textContent=`REINSTALL GOOD FUSE (${diag3FuseInstallTaps}/2)`;sfx('push');
+ if(diag3FuseInstallTaps>=2){diag3Stage=5;$('diag3InstallFuse').disabled=true;$('diag3TestFloat').disabled=false;$('diag3FuseText').innerHTML='<b>Fuse seated.</b> Do not celebrate yet. Command the pump with the float switch and verify water actually leaves.';$('diag3Text').innerHTML='<b>FUSE BACK IN:</b> Test the float switch / bilge pump.';sfx('cash')}
+ updateDiag3UI();
+};
+$('diag3TestFloat').onclick=()=>{
+ if(mode!=='mini3'||diag3Stage!==5)return;
+ diag3Stage=6;$('diag3TestFloat').disabled=true;$('diag3Text').innerHTML='<b>PUMP ON:</b> The original bilge pump fires right up. Water is dropping. Diagnosis: Boat Baby Bryan pulled the fuse. Boat saved.';$('diag3FuseTitle').textContent='SABOTAGE CONFIRMED';$('diag3FuseText').innerHTML='Original pump works. Original fuse works. The only failure was Bryan removing it.';sfx('cash');
+ setTimeout(()=>{if(mode==='mini3')finishJob()},1500);updateDiag3UI();
+};
+function updateDiag3UI(){
+ $('diag3Water').style.height=(diag3Water*100)+'%';const foam=$('jobMini3').querySelector('.diag3WaterFoam');if(foam)foam.style.bottom=`calc(${(diag3Water*100).toFixed(1)}% - 5px)`;
+ const pct=diag3Stage===0?diag3CluesFound.size*8:diag3Stage===1?42:diag3Stage===2?56:diag3Stage===3?68:diag3Stage===4?79:diag3Stage===5?91:100;
+ $('diag3Progress').style.width=pct+'%';$('miniTime3').textContent=Math.max(0,diag3Clock).toFixed(1);
+}
+function updateMini3(dt){
+ diag3Clock-=dt;if(diag3Stage<6)diag3Water=Math.min(1,diag3Water+dt*(diag3Stage>=3?.006:.0085));else diag3Water=Math.max(.06,diag3Water-dt*.72);
+ updateDiag3UI();if(diag3Water>=1||diag3Clock<=0)failAttempt();
+}
+
+function resetMini(){miniClock=30;water=.38;stage=0;clamps=0;unclogs=0;$('attemptTxt').textContent=`${attempt} / 3`;$('liveBtn').disabled=false;$('clampBtn').disabled=true;$('clampBtn').textContent='CLAMP HOSE (0/5)';$('unclogBtn').disabled=true;$('unclogBtn').textContent='UNCLOG BILGE INTAKE (0/3)';$('pumpBtn').disabled=true;$('diag').style.display='none';for(const b of document.querySelectorAll('#diag .answers button'))b.className='';$('miniText').innerHTML='<b>STEP 1:</b> Shut down the livewell before diagnosing the leak.';updateMiniUI()}
+$('liveBtn').onclick=()=>{stage=1;$('liveBtn').disabled=true;$('diag').style.display='block';$('miniText').innerHTML='<b>STEP 2:</b> Use the clue and diagnose the water source.'};
+for(const b of document.querySelectorAll('#diag .answers button'))b.onclick=()=>{if(stage!==1)return;if(b.dataset.a==='hose'){b.className='correct';stage=2;$('diag').style.display='none';$('clampBtn').disabled=false;$('miniText').innerHTML='<b>STEP 3:</b> Clamp the loose livewell hose.'}else{b.className='wrong';water=Math.min(1,water+.14);$('miniText').innerHTML='<b>Wrong diagnosis.</b> The boat kept filling while you wasted time.';updateMiniUI()}};
+$('clampBtn').onclick=()=>{if(stage!==2)return;clamps++;$('clampBtn').textContent=`CLAMP HOSE (${clamps}/5)`;if(clamps>=5){stage=3;$('clampBtn').disabled=true;$('unclogBtn').disabled=false;$('miniText').innerHTML='<b>STEP 4:</b> Leak stopped, but the bilge intake is clogged. Clear the crap out before pumping.'}};
+$('unclogBtn').onclick=()=>{if(stage!==3)return;unclogs++;$('unclogBtn').textContent=`UNCLOG BILGE INTAKE (${unclogs}/3)`;sfx('push');if(unclogs>=3){stage=4;$('unclogBtn').disabled=true;$('pumpBtn').disabled=false;$('miniText').innerHTML='<b>STEP 5:</b> Intake is clear. Pump the bilge dry.'};updateMiniUI()};
+$('pumpBtn').onclick=()=>{if(stage!==4)return;water=Math.max(0,water-.105);sfx('cash');updateMiniUI();if(water<=.05)finishJob()};
+function updateMiniUI(){let p=stage===0?0:stage===1?16:stage===2?20+clamps*5:stage===3?45+unclogs*7:stage===4?66+(1-water)*34:100;$('miniWater').style.height=(water*100)+'%';$('progressFill').style.width=Math.min(100,p)+'%';$('miniTime').textContent=Math.max(0,miniClock).toFixed(1)}
+function updateMini(dt){miniClock-=dt;water+=dt*(stage>=3?.0045:stage>=2?.008:.018);updateMiniUI();if(water>=1||miniClock<=0)failAttempt()}
+function failAttempt(){
+ if(mode!=='mini'&&mode!=='mini2'&&mode!=='mini3')return;
+ $('jobMini').style.display='none';$('jobMini2').style.display='none';$('jobMini3').style.display='none';mode='failure';$('failure').style.display='grid';
+ if(attempt<3){$('failTitle').textContent='Repair attempt failed.';$('failText').textContent=`You have ${3-attempt} attempt${3-attempt===2?'s':''} left before the level restarts and the 1-star review sticks.`;$('reviewStatus').textContent='Not posted yet — save the job.';$('retryBtn').textContent=`RETRY — ATTEMPT ${attempt+1} OF 3`}
+ else{badReviews++;$('failTitle').textContent='Three strikes. Start over.';$('failText').textContent='The repair stayed incomplete after all three attempts.';$('reviewStatus').textContent='POSTED: incomplete repair.';$('retryBtn').textContent='RESTART LEVEL'}
+}
+$('retryBtn').onclick=()=>{
+ if(attempt<3){attempt++;$('failure').style.display='none';if(currentCall===1){mode='mini';$('jobMini').style.display='grid';resetMini();$('attemptTxt').textContent=`${attempt} / 3`}else if(currentCall===2){mode='mini2';$('jobMini2').style.display='grid';resetMini2();$('attemptTxt2').textContent=`${attempt} / 3`}else{mode='mini3';$('jobMini3').style.display='grid';resetMini3();$('attemptTxt3').textContent=`${attempt} / 3`}}
+ else location.reload()
+};
+function finishJob(){
+ $('jobMini').style.display='none';$('jobMini2').style.display='none';$('jobMini3').style.display='none';mode='completion';activeJob=false;
+ const c=clientCalls[currentCall-1];money+=c.pay;rep+=c.rep;goodJobs++;completedCalls++;if(currentCall===3){goodReviews++;}else if(goodJobs%5===0)goodReviews++;
+ $('completeTitle').textContent=currentCall===1?'First job handled. Somehow the boat is still floating.':(currentCall===2?'Annual service complete. Oil changed, gearcase filled, plugs survived.':'BOAT SAVED. Original pump works — Boat Baby Bryan pulled the bilge-pump fuse.');
+ $('completeMoney').textContent=`$${c.pay}`;$('completeRep').textContent=`+${c.rep}`;
+ $('goodProgress').textContent=currentCall===3?'★★★★★ GOOD REVIEW EARNED':`${goodJobs} / 5 jobs`;$('badCount').textContent=badReviews;
+ $('completeOk').textContent=currentCall===1?'BACK TO THE DOCK':(currentCall===3?'SEE WHAT THE HELL CAUSED THIS':'CONTINUE');
+ $('completion').style.display='grid';sfx('cash');
+ playDockChorus();
+ if(currentCall===1)saveGame('after_job1');
+ else if(currentCall===2)saveGame('job2_complete_pending_heat');
+ else saveGame('job3_complete_pending_arch');
+}
+
+
+const beverageCart={scene:2,x:1110,y:675};
+const cutVideo2=$('cutVideo2');
+function startHeatCutscene(){
+ heatCutscenePending=false;heatDelayStarted=false;if(heatDelayTimer){clearTimeout(heatDelayTimer);heatDelayTimer=null}
+ mode='video2';$('controls').style.visibility='hidden';$('inventoryBtn').style.display='none';$('videoCut2').classList.add('show');
+ pauseVictoryForCutscene();try{musicAudio.pause()}catch(e){};
+ try{cutVideo2.currentTime=0;cutVideo2.play().catch(()=>finishHeatCutscene())}catch(e){finishHeatCutscene()}
+}
+function finishHeatCutscene(){
+ try{cutVideo2.pause()}catch(e){};$('videoCut2').classList.remove('show');$('controls').style.visibility='visible';
+ beverageUnlocked=true;cartInfoSeen=false;saveDrinkState();$('inventoryBtn').style.display='block';
+ // Job #2 now lives on Dock 3. Return Rick there after the heat cutscene.
+ dockScene=2;player.x=420;player.y=670;player.dir=1;mode='game';
+ if(victoryMixActive)resumeVictoryAfterCutscene();else startActualMusic();notice='FUCK, IT IS HOT. I NEED A DRINK.';noticeT=4;toast='Grab a drink if you want, then keep walking RIGHT. Something ugly is waiting on Dock 4.';toastT=7;saveGame('after_job2');
+}
+cutVideo2.onended=finishHeatCutscene;$('videoSkip2').onclick=finishHeatCutscene;
+function nearBeverageCart(){return dockScene===beverageCart.scene&&Math.hypot(beverageCart.x-player.x,(beverageCart.y-player.y)*.9)<225}
+function shopStatsText(){return `Carried: WATER ${waterInv} • RED BULL ${redbullInv} &nbsp;&nbsp; | &nbsp;&nbsp; Speed +${speedBoost}% • Tips $${tipsTotal}`}
+function refreshDrinkMenus(){if($('shopStats'))$('shopStats').innerHTML=shopStatsText();if($('waterCount'))$('waterCount').textContent=`${waterInv} carried`;if($('redbullCount'))$('redbullCount').textContent=`${redbullInv} carried`;if($('invStats'))$('invStats').innerHTML=shopStatsText()+`<br>HP ${Math.round(health)}/100`}
+function openBeverageShop(){mode='shop';$('beverageMenu').style.display='grid';refreshDrinkMenus()}
+function closeBeverageShop(){ $('beverageMenu').style.display='none';mode='game';last=performance.now() }
+$('cartInfoOk').onclick=()=>{ $('cartInfo').style.display='none';mode='game';last=performance.now();toast='One cart per level. Stock up now or regret it later.';toastT=4 };
+$('closeShop').onclick=closeBeverageShop;
+$('buyWater').onclick=()=>{if(money<2){toast='You somehow cannot afford water.';toastT=2;return}money-=2;waterInv++;saveDrinkState();refreshDrinkMenus();sfx('cash')};
+$('buyRedbull').onclick=()=>{if(money<3){toast='No Red Bull money.';toastT=2;return}money-=3;redbullInv++;saveDrinkState();refreshDrinkMenus();sfx('cash')};
+$('tipFive').onclick=()=>{if(money<5){toast='Can’t tip money you do not have.';toastT=2;return}money-=5;const before=Math.floor(tipsTotal/50);tipsTotal+=5;const after=Math.floor(tipsTotal/50);if(after>before){goodReviews+=after-before;rep+=5*(after-before);tipReviewMilestones=after;notice='YOUR TIPS HIT $50 — GOOD REVIEW EARNED. REP +5.';noticeT=5;sfx('cash')}saveDrinkState();refreshDrinkMenus()};
+function openInventory(){if(!beverageUnlocked)return;mode='inventory';$('inventoryMenu').style.display='grid';refreshDrinkMenus()}
+function closeInventory(){ $('inventoryMenu').style.display='none';mode='game';last=performance.now() }
+$('inventoryBtn').onclick=openInventory;$('closeInventory').onclick=closeInventory;
+$('drinkWater').onclick=()=>{if(waterInv<=0){toast='No water carried.';toastT=2;return}waterInv--;health=Math.min(100,health+10);saveDrinkState();refreshDrinkMenus();toast='+10 HP. Actual hydration. Weird concept.';toastT=2.5};
+$('drinkRedbull').onclick=()=>{if(redbullInv<=0){toast='No Red Bull carried.';toastT=2;return}redbullInv--;health=Math.min(100,health+2);speedBoost+=5;saveDrinkState();refreshDrinkMenus();toast=`+2 HP. Speed is now +${speedBoost}%.`;toastT=2.5};
+function drawBeverageCart(){
+ if(!beverageUnlocked||dockScene!==beverageCart.scene)return;
+ const im=extraImgs.cart;
+ if(!im||!im.complete)return;
+ ctx.save();
+ // Proper transparent Dockside Drinks cart — large enough to read as a real stand on the dock.
+ ctx.fillStyle='#0007';
+ ctx.beginPath();
+ ctx.ellipse(beverageCart.x,beverageCart.y+63,132,25,0,0,Math.PI*2);
+ ctx.fill();
+ ctx.drawImage(im,beverageCart.x-150,beverageCart.y-238,300,300);
+ ctx.restore();
+ if(nearBeverageCart()&&mode==='game'){
+   const px=Math.max(1160,Math.min(1440,beverageCart.x-140));
+   ctx.fillStyle='#06101bf1';rr(px,735,280,52,10);
+   ctx.fillStyle='#67edff';ctx.font='1000 13px system-ui';ctx.textAlign='center';
+   ctx.fillText('USE / PUSH — BUY DRINKS',px+140,766);ctx.textAlign='left';
+ }
+}
+
+function drawMarinaBase(showHud=true){
+ // Keep the detailed marina skyline / boats in the distance.
+ const im=imgs.marina;
+ if(im.complete)ctx.drawImage(im,0,70,W,780);
+ else{ctx.fillStyle='#0c7890';ctx.fillRect(0,0,W,H)}
+
+ // Replace the baked foreground with open water so the new docks read as real playable geometry.
+ const water=ctx.createLinearGradient(0,360,0,H);
+ water.addColorStop(0,'rgba(20,141,173,.72)');
+ water.addColorStop(.38,'rgba(7,104,137,.91)');
+ water.addColorStop(1,'rgba(3,54,79,.98)');
+ ctx.fillStyle=water;ctx.fillRect(0,360,W,H-360);
+ for(let i=0;i<18;i++){
+   const yy=390+i*28+Math.sin(time*1.4+i)*4;
+   ctx.fillStyle=`rgba(190,245,255,${0.025+(i%3)*.012})`;
+   ctx.fillRect((i*113+time*20)%240-80,yy,1450-(i%4)*110,2);
+ }
+
+ // Dark HUD band across the skyline.
+ const top=ctx.createLinearGradient(0,0,0,135);top.addColorStop(0,'#04101bf5');top.addColorStop(1,'#04101bb8');ctx.fillStyle=top;ctx.fillRect(0,0,W,132);
+
+ drawPlayableDock();
+ drawServiceBoats();
+ drawBeverageCart();
+ drawShark();
+ drawNPCs();
+ drawRick();
+ if(showHud)drawHUD()
+}
+function drawServiceKiosk(){
+ ctx.save();
+
+ // Smaller dock utility cabinet used to cover the baked static figure in the background.
+ // It now reads as part of the marina instead of a giant foreground wall.
+ const x=742,y=368,w=122,h=250;
+ ctx.fillStyle='#0006';rr(x-7,y+8,w+14,h+14,11);
+
+ const g=ctx.createLinearGradient(x,0,x+w,0);
+ g.addColorStop(0,'#26343a');g.addColorStop(.52,'#3d4b50');g.addColorStop(1,'#182126');
+ ctx.fillStyle=g;rr(x,y,w,h,10);
+ ctx.strokeStyle='#8e9a9e';ctx.lineWidth=2;ctx.stroke();
+
+ ctx.fillStyle='#111a1f';rr(x+12,y+15,w-24,58,7);
+ ctx.fillStyle='#6eeeff';ctx.font='1000 13px system-ui';ctx.textAlign='center';
+ ctx.fillText('FUEL DOCK',x+w/2,y+37);
+ ctx.fillStyle='#fff';ctx.font='800 9px system-ui';
+ ctx.fillText('ICE • BAIT • PARTS',x+w/2,y+54);
+ ctx.fillText('MARINE SUPPLIES',x+w/2,y+67);
+
+ // Small red fuel door.
+ ctx.fillStyle='#c82f31';rr(x+20,y+100,40,63,5);
+ ctx.fillStyle='#111';ctx.fillRect(x+27,y+112,26,14);
+ ctx.fillStyle='#fff';ctx.font='900 8px system-ui';ctx.fillText('FUEL',x+40,y+123);
+
+ // Hose.
+ ctx.strokeStyle='#151819';ctx.lineWidth=7;ctx.beginPath();ctx.arc(x+90,y+142,25,-1.2,1.4);ctx.stroke();
+
+ ctx.fillStyle='#d8c58a';ctx.font='1000 9px system-ui';
+ ctx.fillText('A-DOCK',x+w/2,y+h-18);
+ ctx.textAlign='left';ctx.restore();
+}
+
+function drawPlayableDock(){
+ ctx.save();
+ function deck(x,y,w,h,vertical=false){
+   ctx.fillStyle='#0007';rr(x+8,y+10,w,h,8);
+   const g=ctx.createLinearGradient(x,y,x,y+h);g.addColorStop(0,'#c3935d');g.addColorStop(.5,'#a87849');g.addColorStop(1,'#835b39');
+   ctx.fillStyle=g;rr(x,y,w,h,7);ctx.strokeStyle='#5f3e27';ctx.lineWidth=3;ctx.stroke();ctx.strokeStyle='rgba(76,45,24,.55)';ctx.lineWidth=2;
+   if(vertical){for(let yy=y+14;yy<y+h;yy+=24){ctx.beginPath();ctx.moveTo(x+4,yy);ctx.lineTo(x+w-4,yy);ctx.stroke()}}
+   else{for(let xx=x+18;xx<x+w;xx+=58){ctx.beginPath();ctx.moveTo(xx,y+4);ctx.lineTo(xx,y+h-4);ctx.stroke()}}
+ }
+ const rects=currentDockRects();
+ for(const r of rects.filter(r=>r.kind==='finger'))deck(r.x,r.y,r.w,r.h,true);
+ deck(45,642,1510,170,false);
+
+ if(dockScene===0){
+   // Opening marina keeps the jump-gap chaos.
+   ctx.fillStyle='#075f7c';ctx.fillRect(910,705,120,107);
+   for(let yy=716;yy<806;yy+=28){ctx.fillStyle='#5e3c27';ctx.fillRect(898,yy,15,17);ctx.fillRect(1030,yy,15,17)}
+ }
+
+ const fingers=rects.filter(r=>r.kind==='finger');
+ for(let i=0;i<fingers.length;i++){
+   const r=fingers[i];
+   for(const px of [r.x+12,r.x+r.w-28]){ctx.fillStyle='#34261f';ctx.fillRect(px,r.y-22,16,r.h+52);ctx.fillStyle='#805c3d';ctx.fillRect(px+3,r.y-18,4,r.h+45)}
+   ctx.fillStyle='#06111ddc';rr(r.x+22,r.y+12,r.w-44,34,8);ctx.strokeStyle='#67eaff66';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#fff';ctx.font='1000 12px system-ui';ctx.textAlign='center';
+   const letter=dockScene===0?String.fromCharCode(65+i):dockScene===1?`E${i+1}`:(dockScene===2?`W${i+1}`:`S${i+1}`);
+   ctx.fillText(dockScene===0?letter+'-DOCK':dockScene===1?'EAST '+letter:(dockScene===2?'SERVICE '+letter:'EMERGENCY '+letter),r.x+r.w/2,r.y+34);ctx.textAlign='left';
+ }
+ for(let x=65;x<1540;x+=185){ctx.fillStyle='#30231d';ctx.fillRect(x,623,22,214);ctx.fillStyle='#7b5738';ctx.fillRect(x+4,623,5,205)}
+
+ // Clear screen identity + exit arrows so the marina reads as connected spaces.
+ ctx.fillStyle='rgba(5,15,23,.82)';rr(585,590,430,38,9);ctx.strokeStyle='rgba(103,234,255,.42)';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#fff';ctx.font='1000 14px system-ui';ctx.textAlign='center';
+ const label=dockScene===0?'DOCK 1 • FREE ROAM':dockScene===1?'DOCK 2 • EAST SERVICE / JOB 1':(dockScene===2?'DOCK 3 • SERVICE WALK / JOB 2':'DOCK 4 • EMERGENCY / JOB 3');ctx.fillText(label,800,615);ctx.textAlign='left';
+ if(dockScene<3){ctx.fillStyle='#ffd15a';ctx.font='1000 16px system-ui';ctx.textAlign='right';ctx.fillText('NEXT DOCK  ➜',1530,690);ctx.textAlign='left'}
+ if(dockScene>0){ctx.fillStyle='#8ceaff';ctx.font='900 13px system-ui';ctx.fillText('⬅ PREVIOUS DOCK',78,690)}
+ ctx.restore();
+}
+
+
+function drawServiceBoats(){
+ for(const spot of jobSpots){
+  if(spot.scene!==dockScene)continue;
+  const sinking=spot.kind==='sinking';
+  const bx=spot.x+145,by=548;
+  ctx.save();ctx.translate(bx,by);if(sinking)ctx.rotate(-0.10);
+  // shadow / water wake
+  ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(0,8,54,105,0,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(180,245,255,.32)';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-58,72);ctx.quadraticCurveTo(-78,100,-55,124);ctx.moveTo(58,72);ctx.quadraticCurveTo(78,100,55,124);ctx.stroke();
+  // top-down hull
+  const hg=ctx.createLinearGradient(-45,0,48,0);hg.addColorStop(0,'#d9e1e5');hg.addColorStop(.5,'#ffffff');hg.addColorStop(1,'#9eabb2');ctx.fillStyle=hg;
+  ctx.beginPath();ctx.moveTo(0,-105);ctx.quadraticCurveTo(49,-74,52,15);ctx.lineTo(43,82);ctx.quadraticCurveTo(0,111,-43,82);ctx.lineTo(-52,15);ctx.quadraticCurveTo(-49,-74,0,-105);ctx.closePath();ctx.fill();ctx.strokeStyle='#233943';ctx.lineWidth=3;ctx.stroke();
+  // blue hull stripe + cockpit
+  ctx.fillStyle=sinking?'#23587a':'#1b6f9a';ctx.fillRect(-46,18,92,15);
+  ctx.fillStyle='#143445';ctx.beginPath();ctx.moveTo(-34,-48);ctx.lineTo(34,-48);ctx.lineTo(28,4);ctx.lineTo(-28,4);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#72b6d0aa';ctx.beginPath();ctx.moveTo(-29,-43);ctx.lineTo(29,-43);ctx.lineTo(22,-9);ctx.lineTo(-22,-9);ctx.closePath();ctx.fill();
+  // console / seat
+  ctx.fillStyle='#e6ecee';rr(-22,38,44,24,5);ctx.fillStyle='#4d5f69';ctx.fillRect(-18,43,36,6);
+  // outboard
+  ctx.fillStyle='#242c31';rr(-20,82,40,28,6);ctx.fillStyle='#9eabb0';ctx.font='900 9px system-ui';ctx.textAlign='center';ctx.fillText('OUTBOARD',0,100);
+  if(sinking){
+   ctx.fillStyle='rgba(25,157,195,.55)';ctx.beginPath();ctx.ellipse(3,43,48,47,0,0,Math.PI*2);ctx.fill();
+   ctx.fillStyle='#ffcf58';ctx.font='1000 10px system-ui';ctx.fillText('TAKING ON WATER',0,129);
+  }
+  ctx.restore();ctx.textAlign='left';
+ }
+}
+function drawShark(){
+ if(dockScene!==0)return;
+ const x=970+Math.sin(time*.8)*36,y=780+Math.sin(time*1.4)*7;
+ ctx.fillStyle='#708b96';ctx.beginPath();ctx.ellipse(x,y,58,17,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(x-8,y-10);ctx.lineTo(x+9,y-45);ctx.lineTo(x+25,y-7);ctx.closePath();ctx.fill()
+}
+function currentRick(){if(player.state==='run')return imgs[['rick_run1','rick_run2','rick_run3'][Math.floor(player.animT*10)%3]];if(player.state==='walk')return imgs[['rick_walk1','rick_walk2','rick_walk3','rick_walk4'][Math.floor(player.animT*8)%4]];return imgs.rick_idle}
+function drawRick(){
+ const im=currentRick();if(!im.complete)return;const depth=(player.y-575)/170,sc=1.80+Math.max(0,Math.min(1,depth))*.16;
+ ctx.save();ctx.translate(player.x,player.y-player.z);if(player.dir<0)ctx.scale(-1,1);ctx.fillStyle='#0007';ctx.beginPath();ctx.ellipse(0,38+player.z,50,13,0,0,Math.PI*2);ctx.fill();ctx.drawImage(im,-im.width*sc/2,-im.height*sc+43,im.width*sc,im.height*sc);ctx.restore()
+}
+function drawNPCs(){
+ for(const n of [...npcDefs].filter(n=>(n.scene??0)===dockScene).sort((a,b)=>a.y-b.y)){
+  const im=imgs[n.key];if(!im.complete)continue;ctx.save();ctx.translate(n.x,n.y);if(n.dir<0)ctx.scale(-1,1);const sc=1.2*n.scale;ctx.fillStyle='#0006';ctx.beginPath();ctx.ellipse(0,34,43,11,0,0,Math.PI*2);ctx.fill();ctx.drawImage(im,-im.width*sc/2,-im.height*sc+38,im.width*sc,im.height*sc);ctx.restore()
+ }
+}
+function drawJobMarker(){
+ if(!activeJob||!target||target.scene!==dockScene)return;
+ const pulse=1+Math.sin(time*5)*.08;ctx.save();ctx.translate(target.x,target.y-122);ctx.scale(pulse,pulse);ctx.textAlign='center';ctx.strokeStyle='#06101b';ctx.lineWidth=8;ctx.font='1000 46px system-ui';ctx.strokeText('🔧',0,0);ctx.fillStyle='#ffd44d';ctx.fillText('🔧',0,0);ctx.font='1000 15px system-ui';ctx.strokeText('YOUR CLIENT',0,28);ctx.fillStyle='#fff';ctx.fillText('YOUR CLIENT',0,28);ctx.restore();ctx.textAlign='left'
+}
+function drawSpeech(){
+ if(speechT<=0)return;
+ const x=Math.max(330,Math.min(1270,player.x));
+ const maxW=610;
+ ctx.font='800 18px system-ui';
+ const lines=wrapLines(speech,maxW-36,3);
+ const h=60+lines.length*24;
+ const y=Math.max(185,player.y-player.z-h-55);
+ ctx.fillStyle='#06101bf4';rr(x-maxW/2,y,maxW,h,16);
+ ctx.strokeStyle='#65eaff';ctx.lineWidth=3;ctx.stroke();
+ ctx.fillStyle='#ffd157';ctx.font='1000 14px system-ui';
+ ctx.fillText(`RICK → ${speechNpc.toUpperCase()}`,x-maxW/2+18,y+25);
+ ctx.fillStyle='#fff';ctx.font='800 18px system-ui';
+ for(let i=0;i<lines.length;i++)ctx.fillText(lines[i],x-maxW/2+18,y+55+i*24);
+}
+
+function drawHUD(){
+ drawJobMarker();
+
+ // LEFT: Rick status — split into lines so nothing crowds the edge.
+ ctx.fillStyle='#06101bee';rr(16,14,448,132,12);
+ ctx.strokeStyle='#52e7ff';ctx.lineWidth=3;ctx.stroke();
+ ctx.fillStyle='#fff';ctx.font='1000 22px system-ui';ctx.fillText('BOAT DADDY RICK',110,46);
+ ctx.fillStyle='#71eaff';ctx.font='800 13px system-ui';ctx.fillText(`LEVEL 1   •   REP ${rep}`,110,70);
+ ctx.fillStyle='#243741';ctx.fillRect(110,83,250,13);
+ ctx.fillStyle='#ff5669';ctx.fillRect(110,83,250*health/100,13);
+ ctx.fillStyle='#fff';ctx.font='900 15px system-ui';ctx.fillText(`CASH  $${money}`,110,119);
+ ctx.fillStyle='#c8d6dd';ctx.font='800 10px system-ui';ctx.fillText(`DRINKS W:${waterInv} RB:${redbullInv}  •  SPEED +${speedBoost}%  •  TIPS $${tipsTotal}`,110,138);
+ if(!portraitPhone()){
+  ctx.fillStyle='#c8d6dd';ctx.font='800 12px system-ui';
+  ctx.fillText(`GOOD REVIEWS ${goodReviews}   •   1-STAR ${badReviews}`,215,119);
+}
+
+ const p=imgs.rickPoster;
+ if(p.complete){
+  ctx.save();ctx.beginPath();ctx.arc(63,75,38,0,Math.PI*2);ctx.clip();
+  ctx.drawImage(p,170,40,370,380,23,35,82,82);ctx.restore();
+ }
+
+ // CENTER: level title.
+ ctx.fillStyle='#06101be5';rr(486,14,628,92,12);
+ ctx.textAlign='center';ctx.fillStyle='#ffd158';ctx.font='1000 14px system-ui';
+ ctx.fillText('LEVEL 1',800,39);
+ ctx.fillStyle='#fff';ctx.font='1000 21px system-ui';
+ ctx.fillText('WHY DID I CHOOSE THIS PROFESSION?',800,69);
+ ctx.fillStyle='#8fa7b5';ctx.font='800 11px system-ui';
+ ctx.fillText("MARINER'S POINT",800,90);ctx.textAlign='left';
+
+ // RIGHT: objective with true wrapping.
+ ctx.fillStyle='#06101be5';rr(1135,14,448,132,12);
+ ctx.textAlign='right';ctx.fillStyle='#55e8ff';ctx.font='900 13px system-ui';
+ ctx.fillText('CURRENT OBJECTIVE',1557,41);
+ ctx.fillStyle='#fff';ctx.font='800 15px system-ui';
+ const objective=activeJob?(target.scene===dockScene?`Reach ${target.boat}`:(target.scene>dockScene?'Walk RIGHT to the next dock screen':'Walk LEFT to the previous dock screen')):(waitingForCall2?`Walk around — next call in about ${Math.max(0,Math.ceil((CALL2_WALK_DISTANCE-call2WalkDistance)/25))} steps`:(completedCalls===0?'Explore Dock 1':(completedCalls===2&&beverageUnlocked&&dockScene<3?'Keep moving RIGHT through the marina':(completedCalls>=3?'Boat saved — continue down the dock':'Explore the marina and talk to people'))));
+ const objLines=wrapLines(objective,380,2);
+ objLines.forEach((line,i)=>ctx.fillText(line,1557,67+i*19));
+ if(activeJob){
+  ctx.fillStyle=deadline<18?'#ff6173':'#ffd05b';ctx.font='900 13px system-ui';
+  ctx.fillText(`APPOINTMENT: ${Math.max(0,deadline).toFixed(0)} SEC`,1557,122);
+ }
+ ctx.textAlign='left';
+
+ if(activeJob&&target&&target.scene===dockScene&&Math.hypot(target.x-player.x,(target.y-player.y)*.8)<155){
+  ctx.fillStyle='#06101bf1';rr(560,725,480,64,12);
+  ctx.fillStyle='#67edff';ctx.font='1000 17px system-ui';ctx.textAlign='center';
+  ctx.fillText('USE / PUSH',800,750);ctx.fillStyle='#fff';ctx.font='900 13px system-ui';
+  ctx.fillText('START CLIENT JOB',800,774);ctx.textAlign='left';
+ }
+
+ if(noticeT>0){
+  ctx.fillStyle='#ffd052ee';rr(450,120,700,72,12);
+  ctx.fillStyle='#08131d';ctx.font='1000 19px system-ui';ctx.textAlign='center';
+  drawWrapped(notice,800,151,650,22,2,'center');ctx.textAlign='left';
+ }
+ if(toastT>0){
+  ctx.fillStyle='#06101beb';rr(330,790,940,82,12);
+  ctx.fillStyle='#fff';ctx.font='800 16px system-ui';ctx.textAlign='center';
+  drawWrapped(toast,800,821,870,21,2,'center');ctx.textAlign='left';
+ }
+ drawSpeech();
+
+ // Only show an interaction hint when Rick is actually close enough to somebody.
+ let nearTalk=false;
+ for(const n of npcDefs){
+   if((n.scene??0)!==dockScene)continue;
+   if(Math.hypot(n.x-player.x,(n.y-player.y)*.9)<145){nearTalk=true;break}
+ }
+ if(nearTalk && speechT<=0){
+   ctx.fillStyle='#06101bea';rr(Math.max(520,Math.min(900,player.x-125)),player.y-145,250,42,10);
+   ctx.fillStyle='#73ecff';ctx.font='1000 13px system-ui';ctx.textAlign='center';
+   ctx.fillText('TALK — SAY SOMETHING STUPID',Math.max(645,Math.min(1025,player.x)),player.y-119);
+   ctx.textAlign='left';
+ }
+
+ if(portraitPhone()){
+   ctx.fillStyle='#06101bdc';rr(465,748,670,42,10);
+   ctx.fillStyle='#9fefff';ctx.font='900 14px system-ui';ctx.textAlign='center';
+   ctx.fillText('TIP: TURN PHONE SIDEWAYS FOR THE FULL-SIZE GAME VIEW',800,775);
+   ctx.textAlign='left';
+ }
+}
+
+function drawPhone(){
+ drawMarinaBase(false);
+ ctx.fillStyle='#02070cba';ctx.fillRect(0,0,W,H);
+
+ const x=265,y=125,w=1070,h=650;
+ ctx.fillStyle='#07131ef5';rr(x,y,w,h,32);
+ ctx.strokeStyle='#55e7ff';ctx.lineWidth=5;ctx.stroke();
+
+ ctx.textAlign='center';
+ ctx.fillStyle='#5deaff';ctx.font='1000 26px system-ui';
+ ctx.fillText('📞  INCOMING CALL',800,188);
+
+ ctx.fillStyle='#fff';ctx.font='1000 58px system-ui';
+ ctx.fillText('555-555-5555',800,262);
+
+ ctx.fillStyle='#ffd15a';ctx.font='1000 29px system-ui';
+ ctx.fillText('MOBILE MARINE EMERGENCY',800,318);
+
+ ctx.fillStyle='#fff';ctx.font='800 38px system-ui';
+ const callText='“Hi, I need a mobile marine mechanic. My boat is taking on water and I don’t know what to do.”';
+ drawWrapped(callText,800,405,850,49,5,'center');
+
+ ctx.fillStyle='#93aab7';ctx.font='800 18px system-ui';
+ ctx.fillText('Tap TAKE JOB or DECLINE JOB when the call ends.',800,706);
+ ctx.textAlign='left';
+}
+function render(){
+ ctx.clearRect(0,0,W,H);
+ drawMarinaBase();
+}
+function update(dt){
+ time+=dt;player.animT+=dt;
+ if(mode==='game')updateGame(dt);else if(mode==='mini')updateMini(dt);else if(mode==='mini2')updateMini2(dt);else if(mode==='mini3')updateMini3(dt);
+ if(noticeT>0)noticeT-=dt;if(toastT>0)toastT-=dt;if(speechT>0)speechT-=dt
+}
+function loop(n){const dt=Math.min(.033,(n-last)/1000);last=n;update(dt);render();requestAnimationFrame(loop)}
+if(beverageUnlocked)$('inventoryBtn').style.display='block';
+refreshSaveTitle();
+requestAnimationFrame(loop);
+</script>
+</body></html>

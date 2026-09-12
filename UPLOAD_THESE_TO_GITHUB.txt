@@ -1,0 +1,11 @@
+DOCKYARD DECEPTION — SPLIT GITHUB UPLOAD VERSION
+
+1. Open this folder after unzipping it.
+2. In your GitHub repository, click Add file > Upload files.
+3. Select ALL files in this folder and drag them into the upload page.
+4. Make sure index.html is in the ROOT of the repo (same level as the mp4/png/mp3 files).
+5. Commit the upload.
+
+IMPORTANT: Upload the extracted files, NOT this ZIP file itself.
+Every individual file in this package is below GitHub's browser-upload size limit.
+The game code is the same finished version; the large images/audio/video that were embedded inside index.html were simply split into normal files.
